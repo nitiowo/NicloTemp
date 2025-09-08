@@ -1,0 +1,30 @@
+# Directories #
+###############
+Data/
+
+# FastQ files #
+###############
+**/*fastq*
+**/*fq*
+**/*fa
+
+
+# R files #
+###########
+**/*Rds
+**/*Rhistory
+
+# Output files #
+################
+**/*pdf
+**/*csv
+**/*tsv
+**/*png
+**/*txt
+**/*html
+**/*log
+**/*json
+
+# Job logs #
+############
+**/*joblog*
