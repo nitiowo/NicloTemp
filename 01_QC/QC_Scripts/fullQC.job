@@ -1,0 +1,20 @@
+#!/bin/bash
+#$ -M nvincen2@nd.edu
+#$ -m abe
+#$ -q long
+#$ -pe smp 8
+#$ -N QC_52
+#$ -o job_logs/
+#$ -e job_logs/
+
+module load bio/0724
+
+mkdir -p ../fastqc_out_52
+
+fastqc ../../Data/fastq_data/run_52/*.fastq.gz --outdir ../fastqc_out_52
+
+mkdir -p ../multiqc_out_52
+
+multiqc ../fastqc_out_52 -o ../multiqc_out_52
+
+module unload

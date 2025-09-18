@@ -1,6 +1,7 @@
 # Directories #
 ###############
 Data/
+job_logs/
 
 # FastQ files #
 ###############
