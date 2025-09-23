@@ -1,0 +1,15 @@
+#!/bin/bash
+#$ -M nvincen2@nd.edu
+#$ -m abe
+#$ -q long
+#$ -pe smp 8
+#$ -N trim_52
+#$ -o job_logs/
+#$ -e job_logs/
+
+conda activate multiqc-env
+
+# Don't include slashes after directory paths
+bash trim.sh ../../Data/fastq_data/run_52 ../trimming/trim_out_52 8
+
+conda deactivate
