@@ -1,32 +1,35 @@
-#!/bin/bash --login
+#!/bin/bash
+# Usage: bash trim.sh <R1.fastq.gz> <output_dir> <ncores>
 
-#Usage: bash trim.sh <sample_dir> <output_dir> <#_of_cores>
+R1="$1"
+OUTDIR="$2"
+ncores="$3"
 
-SAMPDIR=$1
-OUTDIR=$2
-ncores=$3
+mkdir -p "$OUTDIR"
 
-mkdir -p ${OUTDIR}
+# Derive R2 filename automatically
+R2="${R1/%_R1_001.fastq.gz/_R2_001.fastq.gz}"
 
-for r1 in "${SAMPDIR}"/*_R1_001.fastq.gz # for each sample
+# Extract basename without path
+f=$(basename "$R1")
 
-do
-    echo "CURRENT INPUT FILE IS $f"
-    case "$r1" in
-        *Undetermined*) continue ;;  # skip
-    esac
-    
-    f=${r1##*/}; base=${f%.fastq.gz}
-    echo "BASENAME IS $base"
-    
-    IFS=_ read -r -a p <<< "$base"; new="${p[0]}_${p[1]}_${p[2]}"
-    echo "Processing $new"
-    
-    n=${r1%%_R1_001.fastq.gz}
-    trimmomatic PE -threads ${ncores} ${n}_R1_001.fastq.gz  ${n}_R2_001.fastq.gz \
-    ${OUTDIR}/${new}_R1_trimmed.fastq.gz ${OUTDIR}/${new}_R1_unpaired.fastq.gz \
-    ${OUTDIR}/${new}_R2_trimmed.fastq.gz ${OUTDIR}/${new}_R2_unpaired.fastq.gz \
-    ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 \
-    LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+# Remove extensions
+base="${f%.fastq.gz}"
 
-done
+# Shorten name by removing fields 4 and 6 (split by _)
+IFS=_ read -r -a p <<< "$base"
+newbase="${p[0]}_${p[1]}_${p[2]}"
+
+# Define output files with the new short base
+R1_PAIRED="${OUTDIR}/${newbase}_R1_paired.fastq.gz"
+R1_UNPAIRED="${OUTDIR}/${newbase}_R1_unpaired.fastq.gz"
+R2_PAIRED="${OUTDIR}/${newbase}_R2_paired.fastq.gz"
+R2_UNPAIRED="${OUTDIR}/${newbase}_R2_unpaired.fastq.gz"
+
+# Run Trimmomatic
+trimmomatic PE -threads "$ncores" \
+    "$R1" "$R2" \
+    "$R1_PAIRED" "$R1_UNPAIRED" \
+    "$R2_PAIRED" "$R2_UNPAIRED" \
+    ILLUMINACLIP:"$ADAPTERS":2:30:10 \
+    LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:36

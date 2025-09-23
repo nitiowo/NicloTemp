@@ -1,15 +1,33 @@
 #!/bin/bash
 #$ -M nvincen2@nd.edu
-#$ -m abe
+#$ -t 1-36
+#$ -tc 12
 #$ -q largemem
-#$ -pe smp 8
+#$ -pe smp 2
+#$ -l h_vmem=20G
 #$ -N trim_52
 #$ -o job_logs/
 #$ -e job_logs/
 
+set -euo pipefail
+
+# Inputs:
+FASTQ_DIR="samples"
+OUTDIR="trimmed"
+ncores=2
+
+mkdir -p "$OUTDIR"
+
+# Give Java enough memory
+export _JAVA_OPTIONS="-Xmx18G"
+
+# Make a sorted array of all R1 fastq files
+r1_files=( $(ls ${FASTQ_DIR}/*_R1_001.fastq.gz | sort) )
+
+# Pick the R1 file for this array task
+R1="${r1_files[$SGE_TASK_ID-1]}"
+
 conda activate multiqc-env
 
-# Don't include slashes after directory paths
-bash trim.sh ../../Data/fastq_data/run_52 ../trimming/trim_out_52 8
-
-conda deactivate
+# Call the worker script with only 3 arguments
+bash trim.sh "$R1" "$OUTDIR" "$ncores"
