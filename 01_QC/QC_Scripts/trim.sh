@@ -21,9 +21,9 @@ IFS=_ read -r -a p <<< "$base"
 newbase="${p[0]}_${p[1]}_${p[2]}"
 
 # Define output files with the new short base
-R1_PAIRED="${OUTDIR}/${newbase}_R1_paired.fastq.gz"
+R1_PAIRED="${OUTDIR}/${newbase}_R1_trimmed.fastq.gz"
 R1_UNPAIRED="${OUTDIR}/${newbase}_R1_unpaired.fastq.gz"
-R2_PAIRED="${OUTDIR}/${newbase}_R2_paired.fastq.gz"
+R2_PAIRED="${OUTDIR}/${newbase}_R2_trimmed.fastq.gz"
 R2_UNPAIRED="${OUTDIR}/${newbase}_R2_unpaired.fastq.gz"
 
 # Run Trimmomatic
@@ -31,5 +31,5 @@ trimmomatic PE -threads "$ncores" \
     "$R1" "$R2" \
     "$R1_PAIRED" "$R1_UNPAIRED" \
     "$R2_PAIRED" "$R2_UNPAIRED" \
-    ILLUMINACLIP:"$ADAPTERS":2:30:10 \
+    ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 \
     LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:36

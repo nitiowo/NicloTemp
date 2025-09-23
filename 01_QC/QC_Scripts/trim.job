@@ -1,5 +1,4 @@
 #!/bin/bash
-#$ -M nvincen2@nd.edu
 #$ -t 1-36
 #$ -tc 12
 #$ -q largemem
@@ -12,14 +11,15 @@
 set -euo pipefail
 
 # Inputs:
-FASTQ_DIR="samples"
-OUTDIR="trimmed"
+FASTQ_DIR="../../Data/fastq_data/run_52"
+Trim_OUTDIR="../trimmed/trim_52"
+Fastqc_outdir="../post_trim_qc/post_trim_52"
 ncores=2
 
-mkdir -p "$OUTDIR"
+mkdir -p "$Trim_OUTDIR" "$Fastqc_outdir"
 
 # Give Java enough memory
-export _JAVA_OPTIONS="-Xmx18G"
+export _JAVA_OPTIONS="-Xmx12G"
 
 # Make a sorted array of all R1 fastq files
 r1_files=( $(ls ${FASTQ_DIR}/*_R1_001.fastq.gz | sort) )
@@ -27,7 +27,20 @@ r1_files=( $(ls ${FASTQ_DIR}/*_R1_001.fastq.gz | sort) )
 # Pick the R1 file for this array task
 R1="${r1_files[$SGE_TASK_ID-1]}"
 
+# Extract sample name from filename
+# Extract basename without path and remove extensions
+f=$(basename "$R1")
+base="${f%_R1_001.fastq.gz}"
+
+# Shorten name by keeping only run, sample name, and fwd/rev
+IFS=_ read -r -a p <<< "$base"
+newbase="${p[0]}_${p[1]}_${p[2]}"
+echo $newbase
+
 conda activate multiqc-env
 
 # Call the worker script with only 3 arguments
-bash trim.sh "$R1" "$OUTDIR" "$ncores"
+bash trim.sh "$R1" "$Trim_OUTDIR" "$ncores" "$newbase"
+
+# Run fastqc on output files
+fastqc "${Trim_OUTDIR}/${newbase}"* --outdir "${Fastqc_outdir}"
