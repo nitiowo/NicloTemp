@@ -3,12 +3,17 @@
 Data/
 job_logs/
 
-# FastQ files #
+# Fasta/data files #
 ###############
 **/*fastq*
 **/*fq*
 **/*fa
-
+**/*fna
+**/*gbff
+**/*gff
+**/*gtf
+**/*faa
+**/*jsonl
 
 # R files #
 ###########
