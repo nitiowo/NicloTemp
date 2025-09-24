@@ -1,0 +1,19 @@
+#!/bin/bash
+#$ -q largemem
+#$ -pe smp 32
+#$ -l h_vmem=8G 
+#$ -M nvincen2@nd.edu
+#$ -m abe
+#$ -N hisat_2_build
+#$ -o job_logs/
+#$ -e job_logs/
+
+module load bio/0724
+
+mkdir -p ../index
+
+cd ../../Data/reference_data/Combined/
+
+hisat2_extract_splice_sites.py combined.genome.gtf > combined.ss
+hisat2_extract_exons.py combined.genome.gtf > combined.exon
+hisat2-build -p $NSLOTS --ss combined.ss --exon combined.exon combined.genome.fna ../../../02_mapping/index
