@@ -32,7 +32,10 @@ job_logs/
 **/*log
 **/*json
 **/*ht2
+**/*.bam
+**/*.sam
 
 # Job logs #
 ############
 **/*joblog*
+**/*.hisat2.log
