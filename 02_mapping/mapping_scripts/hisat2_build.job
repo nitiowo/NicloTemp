@@ -4,16 +4,17 @@
 #$ -l h_vmem=8G 
 #$ -M nvincen2@nd.edu
 #$ -m abe
-#$ -N hisat_2_build
+#$ -N hisat_2_build_Shae
 #$ -o job_logs/
 #$ -e job_logs/
 
 module load bio/0724
 
-mkdir -p ../index
+mkdir -p ../hisat2_indeces/Shae_index
 
-cd ../../Data/reference_data/Combined/
+cd ../../Data/reference_data/Btru/ncbi_dataset/data/GCA_021962125.1
 
-hisat2_extract_splice_sites.py combined.genome.gtf > combined.ss
-hisat2_extract_exons.py combined.genome.gtf > combined.exon
-hisat2-build -p $NSLOTS --ss combined.ss --exon combined.exon combined.genome.fna ../../../02_mapping/index
+hisat2_extract_splice_sites.py Shae_genomic.gtf > Shae.ss
+hisat2_extract_exons.py Shae_genomic.gtf > Shae.exon
+hisat2-build -p $NSLOTS --ss Shae.ss --exon Shae.exon \
+	GCA_021962125.1_Btru.v1_genomic.fna ../../../02_mapping/hisat2_indeces/Btru_index/Shae_index

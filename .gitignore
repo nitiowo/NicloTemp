@@ -31,6 +31,7 @@ job_logs/
 **/*html
 **/*log
 **/*json
+**/*ht2
 
 # Job logs #
 ############
