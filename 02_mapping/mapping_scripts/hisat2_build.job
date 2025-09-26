@@ -11,7 +11,7 @@ module load bio/0724
 
 ORG="combined"
 
-mkdir -p ../hisat2_indeces/${ORG}_index
+mkdir -p ../hisat2-build_indeces/${ORG}_index
 
 cd ../../Data/reference_data/Combined/
 
@@ -19,4 +19,4 @@ hisat2_extract_splice_sites.py ${ORG}_genomic.gtf > ${ORG}.ss
 hisat2_extract_exons.py ${ORG}_genomic.gtf > ${ORG}.exon
 hisat2-build -p $NSLOTS --ss ${ORG}.ss --exon ${ORG}.exon \
 	combined_genomic.fna \
-	/temp180/mpfrende/nvincen2/NicloTemp/02_mapping/hisat2_indeces/${ORG}_index/${ORG}_index
+	/temp180/mpfrende/nvincen2/NicloTemp/02_mapping/hisat2-build_indeces/${ORG}_index/${ORG}_index

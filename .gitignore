@@ -2,6 +2,8 @@
 ###############
 Data/
 job_logs/
+hisat2-build_indeces/
+hisat2_sambam_out/
 
 # Fasta/data files #
 ###############

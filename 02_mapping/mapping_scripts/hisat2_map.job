@@ -3,24 +3,26 @@
 #$ -pe smp 4
 #$ -M nvincen2@nd.edu
 #$ -m abe
-#$ -N hisat2_sam_single_Shae
+#$ -N hisat2_sam_single_Btru
 #$ -o job_logs/
 #$ -e job_logs/
 
 module load bio/0724
 
-INDEX="/temp180/mpfrende/nvincen2/NicloTemp/02_mapping/hisat2-build_indeces/Shae_index/Shae_index"
-SAMP_DIR="/temp180/mpfrende/nvincen2/NicloTemp/01_QC/trimmed/combined"
+ORG="Btru"
 
-OUTDIR="/temp180/mpfrende/nvincen2/NicloTemp/02_mapping/hisat2_sambam_out/Shae_only"
+INDEX="/temp180/mpfrende/nvincen2/NicloTemp/02_mapping/hisat2-build_indeces/${ORG}_index/${ORG}_index"
+SAMP_DIR="/temp180/mpfrende/nvincen2/NicloTemp/01_QC/trimmed/combined_lanes"
 
-SAMP_NAME="S1_A1"
+SAMP_NAME="R1_A1"
+
+OUTDIR="/temp180/mpfrende/nvincen2/NicloTemp/02_mapping/hisat2_sambam_out/${ORG}_only/${SAMP_NAME}"
 
 mkdir -p ${OUTDIR}
 
 hisat2 -p 4 --dta -x ${INDEX} \
-  -1 ${SAMP_DIR}/${SAMP_NAME}_R1_combined.fastq.gz -2 ${SAMP_DIR}/${SAMP_NAME}_R2_combined.fastq.gz 2> ${OUTDIR}/${SAMP_NAME}.Btru.hisat2.log \
+  -1 ${SAMP_DIR}/${SAMP_NAME}_R1_combined.fastq.gz -2 ${SAMP_DIR}/${SAMP_NAME}_R2_combined.fastq.gz 2> ${OUTDIR}/${SAMP_NAME}.${ORG}.hisat2.log \
   | samtools view -bS - \
-  | samtools sort -o ${OUTDIR}/${SAMP_NAME}.Btru.sorted.bam
-samtools index ${OUTDIR}/${SAMP_NAME}.Btru.sorted.bam
-samtools flagstat ${OUTDIR}/${SAMP_NAME}.Btru.sorted.bam > ${OUTDIR}/${SAMP_NAME}.Btru.flagstat.txt
+  | samtools sort -o ${OUTDIR}/${SAMP_NAME}.${ORG}.sorted.bam
+samtools index ${OUTDIR}/${SAMP_NAME}.${ORG}.sorted.bam
+samtools flagstat ${OUTDIR}/${SAMP_NAME}.${ORG}.sorted.bam > ${OUTDIR}/${SAMP_NAME}.${ORG}.flagstat.txt
