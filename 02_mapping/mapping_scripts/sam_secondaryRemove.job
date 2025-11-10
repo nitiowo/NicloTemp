@@ -13,6 +13,7 @@ BAM_PARENT_DIR="../hisat2_sambam_out/stranded/combined_only"      # parent dir c
 
 echo "Finding BAMs under: $BAM_PARENT_DIR"
 # find all BAMs (recursively), prefer *.sorted.bam but include *.bam fallback; ignore index files
+# save to variable BAMS
 mapfile -t BAMS < <(find "$BAM_PARENT_DIR" -type f \( -name "*combined.sorted.bam" \) ! -name "*.bai" | sort)
 
 if [ "${#BAMS[@]}" -eq 0 ]; then

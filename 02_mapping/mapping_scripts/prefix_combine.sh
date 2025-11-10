@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Add prefixes to Btru and Shae reference sequences and annotations
+# So that mappings can be disambiguated downstream
+
 B_fna="../../Data/reference_data/Btru/ncbi_dataset/data/GCA_021962125.1/GCA_021962125.1_Btru.v1_genomic.fna"
 B_gtf="../../Data/reference_data/Btru/ncbi_dataset/data/GCA_021962125.1/Btru_genomic.gtf"
 
