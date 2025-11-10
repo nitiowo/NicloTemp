@@ -17,7 +17,7 @@ SAMP_DIR="/temp180/mpfrende/nvincen2/NicloTemp/01_QC/trimmed/combined_lanes"
 # Make a sorted array of all R1 fastq files
 r1_files=( $(ls ${SAMP_DIR}/*_R1_combined.fastq.gz | sort) )
 
-# Pick the R1 file for this array task
+# Access the R1 file for this array task
 R1="${r1_files[$SGE_TASK_ID-1]}"
 
 # Extract sample name from filename
@@ -32,7 +32,8 @@ OUTDIR="/temp180/mpfrende/nvincen2/NicloTemp/02_mapping/hisat2_sambam_out/strand
 mkdir -p ${OUTDIR}
 
 hisat2 -p 4 --rna-strandness RF --dta -x ${INDEX} \
-  -1 ${SAMP_DIR}/${SAMP_NAME}_R1_combined.fastq.gz -2 ${SAMP_DIR}/${SAMP_NAME}_R2_combined.fastq.gz 2> ${OUTDIR}/${SAMP_NAME}.${ORG}.hisat2.log \
+  -1 ${SAMP_DIR}/${SAMP_NAME}_R1_combined.fastq.gz -2 ${SAMP_DIR}/${SAMP_NAME}_R2_combined.fastq.gz 2> \
+${OUTDIR}/${SAMP_NAME}.${ORG}.hisat2.log \
   | samtools view -bS - \
   | samtools sort -o ${OUTDIR}/${SAMP_NAME}.${ORG}.sorted.bam
 samtools index ${OUTDIR}/${SAMP_NAME}.${ORG}.sorted.bam
