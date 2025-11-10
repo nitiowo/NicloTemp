@@ -1,0 +1,39 @@
+#!/bin/bash
+#$ -q largemem
+#$ -pe smp 4
+#$ -M nvincen2@nd.edu
+#$ -m abe
+#$ -N remove_secondary_sam
+#$ -o job_logs/
+#$ -e job_logs/
+
+module load bio/0724
+
+BAM_PARENT_DIR="../hisat2_sambam_out/stranded/combined_only"      # parent dir containing per-sample subfolders
+
+echo "Finding BAMs under: $BAM_PARENT_DIR"
+# find all BAMs (recursively), prefer *.sorted.bam but include *.bam fallback; ignore index files
+mapfile -t BAMS < <(find "$BAM_PARENT_DIR" -type f \( -name "*d.sorted.bam" \) ! -name "*.bai" | sort)
+
+if [ "${#BAMS[@]}" -eq 0 ]; then
+  echo "No BAM files found under $BAM_PARENT_DIR. Exiting."
+  exit 1
+fi
+
+echo "Found ${#BAMS[@]} BAM files. First few:"
+printf '  %s\n' "${BAMS[@]:0:10}"
+
+
+for file in ${BAMS[@]}; do
+	f=$(basename "$file")
+	SAMP_NAME="${f%.combined.sorted.bam}"
+	SAMP_DIR=$(dirname $file)
+	# create primary-only BAM (uncompressed)
+	echo "Processing sample $SAMP_NAME"
+	echo "Output file: ${SAMP_DIR}/${SAMP_NAME}"
+        samtools view -b -F 0x904 $file -o ${SAMP_DIR}/${SAMP_NAME}.primary.bam
+
+	# sort & index (featureCounts does not require index but it's useful)
+	samtools sort -o ${SAMP_DIR}/${SAMP_NAME}.primary.sorted.bam ${SAMP_DIR}/${SAMP_NAME}.primary.bam
+	samtools index ${SAMP_DIR}/${SAMP_NAME}.primary.sorted.bam
+done

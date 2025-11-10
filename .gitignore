@@ -37,6 +37,7 @@ helper/
 **/*ht2
 **/*.bam
 **/*.sam
+**/*.summary
 
 # Job logs #
 ############

@@ -1,0 +1,59 @@
+#!/bin/bash
+#$ -q largemem
+#$ -pe smp 8
+#$ -M nvincen2@nd.edu
+#$ -m abe
+#$ -N featureCounts_primary
+#$ -o job_logs/
+#$ -e job_logs/
+
+
+# Simple single-job featureCounts for all BAMs under a parent directory.
+# Edit these three variables:
+BAM_PARENT_DIR="../hisat2_sambam_out/stranded/combined_only/"      # parent dir containing per-sample subfolders
+GTF="../../Data/reference_data/Combined/combined_genomic.gtf"              # combined (prefixed) GTF to use for counting
+OUT_PREFIX="../featurecounts_out/primary/primary_out"  # will create combined_featureCounts.txt and .summary
+
+# Other options you can change if needed:
+# STRAND: 0 = unstranded, 1 = stranded, 2 = reverse stranded (RF)
+STRAND=2
+# Use -p for paired-end. If single-end data, set PAIRED_FLAG="".
+PAIRED_FLAG="-p"
+# Conservative flags: require both mates (-B) and discard chimeric (-C)
+EXTRA_FLAGS="-B -C"
+# featureCounts will use NSLOTS if set by -pe; fallback to THREADS
+THREADS=${NSLOTS:-12}
+
+set -euo pipefail
+export PATH=$PATH
+
+echo "Finding BAMs under: $BAM_PARENT_DIR"
+# find all BAMs (recursively), prefer *.sorted.bam but include *.bam fallback; ignore index files
+mapfile -t BAMS < <(find "$BAM_PARENT_DIR" -type f \( -name "*.primary.sorted.bam" \) ! -name "*.bai" | sort)
+
+if [ "${#BAMS[@]}" -eq 0 ]; then
+  echo "No BAM files found under $BAM_PARENT_DIR. Exiting."
+  exit 1
+fi
+
+echo "Found ${#BAMS[@]} BAM files. First few:"
+printf '  %s\n' "${BAMS[@]:0:10}"
+
+# make output dir
+mkdir -p "$(dirname "$OUT_PREFIX")"
+
+# module load or activate conda env if needed:
+# module load subread
+# or: source activate bioenv
+conda activate subread-env
+
+echo "Running featureCounts with $THREADS threads; strandedness=$STRAND; paired_flag='$PAIRED_FLAG'"
+
+featureCounts -T "$THREADS" $PAIRED_FLAG $EXTRA_FLAGS -s "$STRAND" -t exon -g gene_id \
+  -a "$GTF" \
+  -o "${OUT_PREFIX}.featureCounts.txt" \
+  "${BAMS[@]}"
+
+echo "featureCounts finished. Output:"
+echo "  ${OUT_PREFIX}.featureCounts.txt"
+echo "  ${OUT_PREFIX}.featureCounts.txt.summary"
