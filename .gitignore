@@ -5,6 +5,9 @@ job_logs/
 hisat2-build_indeces/
 hisat2_sambam_out/
 helper/
+test_output_results/
+work/
+.nextflow/
 
 # Fasta/data files #
 ###############
