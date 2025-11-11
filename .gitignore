@@ -8,6 +8,8 @@ helper/
 test_output_results/
 work/
 .nextflow/
+/multiqc
+
 
 # Fasta/data files #
 ###############

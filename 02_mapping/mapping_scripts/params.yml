@@ -1,10 +1,10 @@
 # names/email
-email: "nmcadam2@nd.edu"
-multiqc_title: "CURE_Superbugs_remapped"
+email: "nvincen2@nd.edu"
+multiqc_title: "NicloTemp Star_Salmon"
 
 # input/output
-input: "/scratch365/nmcadam2/superBugs_WD/nfCore/samplesheet.csv"
-outdir: "/scratch365/nmcadam2/superBugs_WD/nfCore/outputs/withTranscripts"
+input: "/temp180/mpfrende/nvincen2/NicloTemp/01_QC/trimmed"
+outdir: "/temp180/mpfrende/nvincen2/NicloTemp/02_mapping/nf-core_output"
 
 # Genome references
 fasta: "/scratch365/nmcadam2/superBugs_WD/nfCore/refs/Abaumannii_refSeq_genomic.fna"
@@ -22,4 +22,4 @@ extra_star_align_args: "--alignIntronMax 1 --alignIntronMin 2 --alignEndsType En
 # Counting level
 featurecounts_feature_type: "CDS"
 featurecounts_group_type: "locus_tag"
-
+save_reference: true
