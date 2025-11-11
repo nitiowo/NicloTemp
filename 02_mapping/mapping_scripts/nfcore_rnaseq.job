@@ -5,6 +5,14 @@
 #$ -o job_logs/
 #$ -e job_logs/
 
+# Inputs
+samplesheet=""
+genome=""
+gtf=""
+outdir=""
+email=""
+
+
 # Load the nf-core software module
 module load bio/nf-core
 
@@ -12,4 +20,10 @@ module load bio/nf-core
 export NXF_SINGULARITY_CACHEDIR=/software/n/nf-core/3.3.1/singularity
 
 # Run the nf-core/rnaseq pipeline
-nextflow run nf-core/rnaseq -r 3.19.0 -profile test,singularity --outdir ../test_output_results
+nextflow run nf-core/rnaseq -r 3.19.0 \
+    -profile singularity \
+    --input $samplesheet \
+    --fasta $genome \
+    --gtf /path/to/your/genes.gtf.gz \
+    --outdir /path/to/your/results/folder \
+    --email <netID>@nd.edu
