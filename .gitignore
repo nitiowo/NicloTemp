@@ -9,7 +9,8 @@ test_output_results/
 work/
 .nextflow/
 /multiqc
-
+**/*nextflow.log*
+nfcore_output/
 
 # Fasta/data files #
 ###############

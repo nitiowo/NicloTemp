@@ -1,0 +1,912 @@
+# User comments:
+# This version of the params file uses 
+# --trimmer fastp --extra_fastp_args '--reads_to_process 10000'
+# This only processes the first 10000 reads of each samples
+# This is to just test if the pipeline works as intended.
+# Takes 2 genomes as input through BBSplit 
+# > one primary (through --fasta) and one for "contaminants through --bbsplit_fasta_list"
+
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##     nf-core/rnaseq 3.21.0
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##     This is an example parameter file to pass to the `-params-file` option
+##     of nextflow run with the nf-core/rnaseq pipeline.
+##      
+##     Uncomment lines with a single '#' if you want to pass the parameter to
+##     the pipeline.
+## -----------------------------------------------------------------------------
+
+## =============================================================================
+## Input/output options
+## =============================================================================
+## Define where the pipeline should find input data and save output data.
+
+## -----------------------------------------------------------------------------
+## input
+## -----------------------------------------------------------------------------
+##     Path to the sample sheet (CSV) containing metadata about the
+##     experimental samples.
+##     Type: string
+##     Required
+## -----------------------------------------------------------------------------
+input: "/temp180/mpfrende/nvincen2/NicloTemp/01_QC/trimmed/combined_lanes/samplesheet.csv"
+
+## -----------------------------------------------------------------------------
+## outdir
+## -----------------------------------------------------------------------------
+##     The output directory where the results will be saved. You have to use
+##     absolute paths to storage on Cloud infrastructure.
+##     Type: string
+##     Required
+## -----------------------------------------------------------------------------
+outdir: "/temp180/mpfrende/nvincen2/NicloTemp/02_mapping/nfcore_output"
+
+## -----------------------------------------------------------------------------
+## email
+## -----------------------------------------------------------------------------
+##     Email address for completion summary.
+##     Type: string
+## -----------------------------------------------------------------------------
+email: "nvincen2@nd.edu"
+
+## -----------------------------------------------------------------------------
+## multiqc_title
+## -----------------------------------------------------------------------------
+##     MultiQC report title. Printed as page header, used for filename if not
+##     otherwise specified.
+##     Type: string
+## -----------------------------------------------------------------------------
+multiqc_title: "NicloTemp_DE_alignment"
+
+
+## =============================================================================
+## Reference genome options
+## =============================================================================
+## Reference genome related files and options required for the workflow.
+
+## (2 hidden parameters are not shown)
+
+
+## -----------------------------------------------------------------------------
+## genome
+## -----------------------------------------------------------------------------
+##     Name of iGenomes reference.
+##     Type: string
+## -----------------------------------------------------------------------------
+# genome: null
+
+## -----------------------------------------------------------------------------
+## fasta
+## -----------------------------------------------------------------------------
+##     Path to FASTA genome file.
+##     Type: string
+## -----------------------------------------------------------------------------
+fasta: "/temp180/mpfrende/nvincen2/NicloTemp/Data/reference_data/Btru/GCA_021962125.1/GCA_021962125.1_Btru.v1_genomic.fna"
+
+## -----------------------------------------------------------------------------
+## gtf
+## -----------------------------------------------------------------------------
+##     Path to GTF annotation file.
+##     Type: string
+## -----------------------------------------------------------------------------
+gtf: "/temp180/mpfrende/nvincen2/NicloTemp/Data/reference_data/Btru/GCA_021962125.1/Btru_genomic.gtf"
+
+## -----------------------------------------------------------------------------
+## gff
+## -----------------------------------------------------------------------------
+##     Path to GFF3 annotation file.
+##     Type: string
+## -----------------------------------------------------------------------------
+# gff: null
+
+## -----------------------------------------------------------------------------
+## gene_bed
+## -----------------------------------------------------------------------------
+##     Path to BED file containing gene intervals. This will be created from
+##     the GTF file if not specified.
+##     Type: string
+## -----------------------------------------------------------------------------
+# gene_bed: null
+
+## -----------------------------------------------------------------------------
+## transcript_fasta
+## -----------------------------------------------------------------------------
+##     Path to FASTA transcriptome file.
+##     Type: string
+## -----------------------------------------------------------------------------
+# transcript_fasta: null
+
+## -----------------------------------------------------------------------------
+## additional_fasta
+## -----------------------------------------------------------------------------
+##     FASTA file to concatenate to genome FASTA file e.g. containing spike-
+##     in sequences.
+##     Type: string
+## -----------------------------------------------------------------------------
+# additional_fasta: null
+
+## -----------------------------------------------------------------------------
+## splicesites
+## -----------------------------------------------------------------------------
+##     Splice sites file required for HISAT2.
+##     Type: string
+## -----------------------------------------------------------------------------
+# splicesites: null
+
+## -----------------------------------------------------------------------------
+## star_index
+## -----------------------------------------------------------------------------
+##     Path to directory or tar.gz archive for pre-built STAR index.
+##     Type: string
+## -----------------------------------------------------------------------------
+# star_index: null
+
+## -----------------------------------------------------------------------------
+## hisat2_index
+## -----------------------------------------------------------------------------
+##     Path to directory or tar.gz archive for pre-built HISAT2 index.
+##     Type: string
+## -----------------------------------------------------------------------------
+# hisat2_index: null
+
+## -----------------------------------------------------------------------------
+## rsem_index
+## -----------------------------------------------------------------------------
+##     Path to directory or tar.gz archive for pre-built RSEM index.
+##     Type: string
+## -----------------------------------------------------------------------------
+# rsem_index: null
+
+## -----------------------------------------------------------------------------
+## salmon_index
+## -----------------------------------------------------------------------------
+##     Path to directory or tar.gz archive for pre-built Salmon index.
+##     Type: string
+## -----------------------------------------------------------------------------
+# salmon_index: null
+
+## -----------------------------------------------------------------------------
+## kallisto_index
+## -----------------------------------------------------------------------------
+##     Path to directory or tar.gz archive for pre-built Kallisto index.
+##     Type: string
+## -----------------------------------------------------------------------------
+# kallisto_index: null
+
+## -----------------------------------------------------------------------------
+## hisat2_build_memory
+## -----------------------------------------------------------------------------
+##     Minimum memory required to use splice sites and exons in the HiSAT2
+##     index build process.
+##     Type: string
+## -----------------------------------------------------------------------------
+# hisat2_build_memory: "200.GB"
+
+## -----------------------------------------------------------------------------
+## gencode
+## -----------------------------------------------------------------------------
+##     Specify if your GTF annotation is in GENCODE format.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# gencode: null
+
+## -----------------------------------------------------------------------------
+## gtf_extra_attributes
+## -----------------------------------------------------------------------------
+##     By default, the pipeline uses the `gene_name` field to obtain
+##     additional gene identifiers from the input GTF file when running
+##     Salmon.
+##     Type: string
+## -----------------------------------------------------------------------------
+# gtf_extra_attributes: "gene_name"
+
+## -----------------------------------------------------------------------------
+## gtf_group_features
+## -----------------------------------------------------------------------------
+##     Define the attribute type used to group features in the GTF file when
+##     running Salmon.
+##     Type: string
+## -----------------------------------------------------------------------------
+# gtf_group_features: "gene_id"
+
+## -----------------------------------------------------------------------------
+## featurecounts_group_type
+## -----------------------------------------------------------------------------
+##     The attribute type used to group feature types in the GTF file when
+##     generating the biotype plot with featureCounts.
+##     Type: string
+## -----------------------------------------------------------------------------
+# featurecounts_group_type: "gene_biotype"
+
+## -----------------------------------------------------------------------------
+## featurecounts_feature_type
+## -----------------------------------------------------------------------------
+##     By default, the pipeline assigns reads based on the 'exon' attribute
+##     within the GTF file.
+##     Type: string
+## -----------------------------------------------------------------------------
+# featurecounts_feature_type: "exon"
+
+
+## =============================================================================
+## Read trimming options
+## =============================================================================
+## Options to adjust read trimming criteria.
+
+## -----------------------------------------------------------------------------
+## trimmer
+## -----------------------------------------------------------------------------
+##     Specifies the trimming tool to use - available options are
+##     'trimgalore' and 'fastp'.
+##     Type: string
+## -----------------------------------------------------------------------------
+trimmer: "fastp"
+
+## -----------------------------------------------------------------------------
+## extra_trimgalore_args
+## -----------------------------------------------------------------------------
+##     Extra arguments to pass to Trim Galore! command in addition to
+##     defaults defined by the pipeline.
+##     Type: string
+## -----------------------------------------------------------------------------
+# extra_trimgalore_args: null
+
+## -----------------------------------------------------------------------------
+## extra_fastp_args
+## -----------------------------------------------------------------------------
+##     Extra arguments to pass to fastp command in addition to defaults
+##     defined by the pipeline.
+##     Type: string
+## -----------------------------------------------------------------------------
+extra_fastp_args: '--reads_to_process 10000'
+
+## -----------------------------------------------------------------------------
+## min_trimmed_reads
+## -----------------------------------------------------------------------------
+##     Minimum number of trimmed reads below which samples are removed from
+##     further processing. Some downstream steps in the pipeline will fail if
+##     this threshold is too low.
+##     Type: integer
+## -----------------------------------------------------------------------------
+# min_trimmed_reads: 10000
+
+
+## =============================================================================
+## Read filtering options
+## =============================================================================
+## Options for filtering reads prior to alignment
+
+## -----------------------------------------------------------------------------
+## bbsplit_fasta_list
+## -----------------------------------------------------------------------------
+##     Path to comma-separated file containing a list of reference genomes to
+##     filter reads against with BBSplit. You have to also explicitly set
+##     `--skip_bbsplit false` if you want to use BBSplit.
+##     Type: string
+## -----------------------------------------------------------------------------
+bbsplit_fasta_list: "/temp180/mpfrende/nvincen2/NicloTemp/02_mapping/mapping_scripts/bb_genomefastas.txt"
+
+## -----------------------------------------------------------------------------
+## bbsplit_index
+## -----------------------------------------------------------------------------
+##     Path to directory or tar.gz archive for pre-built BBSplit index.
+##     Type: string
+## -----------------------------------------------------------------------------
+# bbsplit_index: null
+
+## -----------------------------------------------------------------------------
+## sortmerna_index
+## -----------------------------------------------------------------------------
+##     Path to directory or tar.gz archive for pre-built sortmerna index.
+##     Type: string
+## -----------------------------------------------------------------------------
+# sortmerna_index: null
+
+## -----------------------------------------------------------------------------
+## remove_ribo_rna
+## -----------------------------------------------------------------------------
+##     Enable the removal of reads derived from ribosomal RNA using
+##     SortMeRNA.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# remove_ribo_rna: null
+
+## -----------------------------------------------------------------------------
+## ribo_database_manifest
+## -----------------------------------------------------------------------------
+##     Text file containing paths to fasta files (one per line) that will be
+##     used to create the database for SortMeRNA.
+##     Type: string
+## -----------------------------------------------------------------------------
+# ribo_database_manifest: "${projectDir}/workflows/rnaseq/assets/rrna-db-defaults.txt"
+
+
+## =============================================================================
+## UMI options
+## =============================================================================
+## Options for processing reads with unique molecular identifiers
+
+## -----------------------------------------------------------------------------
+## with_umi
+## -----------------------------------------------------------------------------
+##     Enable UMI-based read deduplication.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# with_umi: null
+
+## -----------------------------------------------------------------------------
+## umi_dedup_tool
+## -----------------------------------------------------------------------------
+##     Specifies the tool to use for UMI deduplication - available options
+##     are 'umitools' and 'umicollapse'.
+##     Type: string
+## -----------------------------------------------------------------------------
+# umi_dedup_tool: "umitools"
+
+## -----------------------------------------------------------------------------
+## umitools_extract_method
+## -----------------------------------------------------------------------------
+##     UMI pattern to use. Can be either 'string' (default) or 'regex'.
+##     Type: string
+## -----------------------------------------------------------------------------
+# umitools_extract_method: "string"
+
+## -----------------------------------------------------------------------------
+## umitools_bc_pattern
+## -----------------------------------------------------------------------------
+##     The UMI barcode pattern to use e.g. 'NNNNNN' indicates that the first
+##     6 nucleotides of the read are from the UMI.
+##     Type: string
+## -----------------------------------------------------------------------------
+# umitools_bc_pattern: null
+
+## -----------------------------------------------------------------------------
+## umitools_bc_pattern2
+## -----------------------------------------------------------------------------
+##     The UMI barcode pattern to use if the UMI is located in read 2.
+##     Type: string
+## -----------------------------------------------------------------------------
+# umitools_bc_pattern2: null
+
+## -----------------------------------------------------------------------------
+## umi_discard_read
+## -----------------------------------------------------------------------------
+##     After UMI barcode extraction discard either R1 or R2 by setting this
+##     parameter to 1 or 2, respectively.
+##     Type: integer
+## -----------------------------------------------------------------------------
+# umi_discard_read: null
+
+## -----------------------------------------------------------------------------
+## umitools_umi_separator
+## -----------------------------------------------------------------------------
+##     The character that separates the UMI in the read name. Most likely a
+##     colon if you skipped the extraction with UMI-tools and used other
+##     software.
+##     Type: string
+## -----------------------------------------------------------------------------
+# umitools_umi_separator: null
+
+## -----------------------------------------------------------------------------
+## umitools_grouping_method
+## -----------------------------------------------------------------------------
+##     Method to use to determine read groups by subsuming those with similar
+##     UMIs. All methods start by identifying the reads with the same mapping
+##     position, but treat similar yet nonidentical UMIs differently.
+##     Type: string
+## -----------------------------------------------------------------------------
+# umitools_grouping_method: "directional"
+
+## -----------------------------------------------------------------------------
+## umitools_dedup_stats
+## -----------------------------------------------------------------------------
+##     Generate output stats when running "umi_tools dedup".
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# umitools_dedup_stats: null
+
+
+## =============================================================================
+## Alignment options
+## =============================================================================
+## Options to adjust parameters and filtering criteria for read alignments.
+
+## -----------------------------------------------------------------------------
+## aligner
+## -----------------------------------------------------------------------------
+##     Specifies the alignment algorithm to use - available options are
+##     'star_salmon', 'star_rsem' and 'hisat2'.
+##     Type: string
+## -----------------------------------------------------------------------------
+aligner: "star_salmon"
+
+## -----------------------------------------------------------------------------
+## use_sentieon_star
+## -----------------------------------------------------------------------------
+##     Optionally accelerate STAR with Sentieon
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# use_sentieon_star: null
+
+## -----------------------------------------------------------------------------
+## pseudo_aligner
+## -----------------------------------------------------------------------------
+##     Specifies the pseudo aligner to use - available options are 'salmon'.
+##     Runs in addition to '--aligner'.
+##     Type: string
+## -----------------------------------------------------------------------------
+pseudo_aligner: "salmon"
+
+## -----------------------------------------------------------------------------
+## pseudo_aligner_kmer_size
+## -----------------------------------------------------------------------------
+##     Kmer length passed to indexing step of pseudoaligners
+##     Type: integer
+## -----------------------------------------------------------------------------
+# pseudo_aligner_kmer_size: 31
+
+## -----------------------------------------------------------------------------
+## bam_csi_index
+## -----------------------------------------------------------------------------
+##     Create a CSI index for BAM files instead of the traditional BAI index.
+##     This will be required for genomes with larger chromosome sizes.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# bam_csi_index: null
+
+## -----------------------------------------------------------------------------
+## star_ignore_sjdbgtf
+## -----------------------------------------------------------------------------
+##     When using pre-built STAR indices do not re-extract and use splice
+##     junctions from the GTF file.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# star_ignore_sjdbgtf: null
+
+## -----------------------------------------------------------------------------
+## salmon_quant_libtype
+## -----------------------------------------------------------------------------
+##      Override Salmon library type inferred based on strandedness defined
+##     in meta object.
+##     Type: string
+## -----------------------------------------------------------------------------
+# salmon_quant_libtype: null
+
+## -----------------------------------------------------------------------------
+## min_mapped_reads
+## -----------------------------------------------------------------------------
+##     Minimum percentage of uniquely mapped reads below which samples are
+##     removed from further processing.
+##     Type: number
+## -----------------------------------------------------------------------------
+# min_mapped_reads: 5.0
+
+## -----------------------------------------------------------------------------
+## seq_center
+## -----------------------------------------------------------------------------
+##     Sequencing center information to be added to read group of BAM files.
+##     Type: string
+## -----------------------------------------------------------------------------
+# seq_center: null
+
+## -----------------------------------------------------------------------------
+## stringtie_ignore_gtf
+## -----------------------------------------------------------------------------
+##     Perform reference-guided de novo assembly of transcripts using
+##     StringTie i.e. dont restrict to those in GTF file.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# stringtie_ignore_gtf: null
+
+## -----------------------------------------------------------------------------
+## extra_star_align_args
+## -----------------------------------------------------------------------------
+##     Extra arguments to pass to STAR alignment command in addition to
+##     defaults defined by the pipeline. Only available for the STAR-Salmon
+##     route.
+##     Type: string
+## -----------------------------------------------------------------------------
+# extra_star_align_args: null
+
+## -----------------------------------------------------------------------------
+## extra_salmon_quant_args
+## -----------------------------------------------------------------------------
+##     Extra arguments to pass to Salmon quant command in addition to
+##     defaults defined by the pipeline.
+##     Type: string
+## -----------------------------------------------------------------------------
+# extra_salmon_quant_args: null
+
+## -----------------------------------------------------------------------------
+## extra_kallisto_quant_args
+## -----------------------------------------------------------------------------
+##     Extra arguments to pass to Kallisto quant command in addition to
+##     defaults defined by the pipeline.
+##     Type: string
+## -----------------------------------------------------------------------------
+# extra_kallisto_quant_args: null
+
+## -----------------------------------------------------------------------------
+## kallisto_quant_fraglen
+## -----------------------------------------------------------------------------
+##     In single-end mode Kallisto requires an estimated fragment length.
+##     Specify a default value for that here. TODO: use existing RSeQC
+##     results to do this dynamically.
+##     Type: integer
+## -----------------------------------------------------------------------------
+# kallisto_quant_fraglen: 200
+
+## -----------------------------------------------------------------------------
+## kallisto_quant_fraglen_sd
+## -----------------------------------------------------------------------------
+##     In single-end mode, Kallisto requires an estimated standard error for
+##     fragment length. Specify a default value for that here. TODO: use
+##     existing RSeQC results to do this dynamically.
+##     Type: integer
+## -----------------------------------------------------------------------------
+# kallisto_quant_fraglen_sd: 200
+
+## -----------------------------------------------------------------------------
+## stranded_threshold
+## -----------------------------------------------------------------------------
+##     The fraction of stranded reads that must be assigned to a strandedness
+##     for confident assignment. Must be at least 0.5.
+##     Type: number
+## -----------------------------------------------------------------------------
+# stranded_threshold: 0.8
+
+## -----------------------------------------------------------------------------
+## unstranded_threshold
+## -----------------------------------------------------------------------------
+##     The difference in fraction of stranded reads assigned to 'forward' and
+##     'reverse' below which a sample is classified as 'unstranded'. By
+##     default the forward and reverse fractions must differ by less than 0.1
+##     for the sample to be called as unstranded.
+##     Type: number
+## -----------------------------------------------------------------------------
+# unstranded_threshold: 0.1
+
+
+## =============================================================================
+## Optional outputs
+## =============================================================================
+## Additional output files produces as intermediates that can be saved
+
+## -----------------------------------------------------------------------------
+## save_merged_fastq
+## -----------------------------------------------------------------------------
+##     Save FastQ files after merging re-sequenced libraries in the results
+##     directory.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# save_merged_fastq: null
+
+## -----------------------------------------------------------------------------
+## save_umi_intermeds
+## -----------------------------------------------------------------------------
+##     If this option is specified, intermediate FastQ and BAM files produced
+##     by UMI-tools are also saved in the results directory.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# save_umi_intermeds: null
+
+## -----------------------------------------------------------------------------
+## save_non_ribo_reads
+## -----------------------------------------------------------------------------
+##     If this option is specified, intermediate FastQ files containing non-
+##     rRNA reads will be saved in the results directory.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# save_non_ribo_reads: null
+
+## -----------------------------------------------------------------------------
+## save_bbsplit_reads
+## -----------------------------------------------------------------------------
+##     If this option is specified, FastQ files split by reference will be
+##     saved in the results directory.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+save_bbsplit_reads: true
+
+## -----------------------------------------------------------------------------
+## save_reference
+## -----------------------------------------------------------------------------
+##     If generated by the pipeline save the STAR index in the results
+##     directory.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+save_reference: true
+
+## -----------------------------------------------------------------------------
+## save_trimmed
+## -----------------------------------------------------------------------------
+##     Save the trimmed FastQ files in the results directory.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# save_trimmed: null
+
+## -----------------------------------------------------------------------------
+## save_align_intermeds
+## -----------------------------------------------------------------------------
+##     Save the intermediate BAM files from the alignment step.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+save_align_intermeds: true
+
+## -----------------------------------------------------------------------------
+## save_unaligned
+## -----------------------------------------------------------------------------
+##     Where possible, save unaligned reads from either STAR, HISAT2 or
+##     Salmon to the results directory.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+save_unaligned: true
+
+## -----------------------------------------------------------------------------
+## save_kraken_assignments
+## -----------------------------------------------------------------------------
+##     Save read-by-read assignments from Kraken2.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# save_kraken_assignments: null
+
+## -----------------------------------------------------------------------------
+## save_kraken_unassigned
+## -----------------------------------------------------------------------------
+##     Save reads that were not given assignment from Kraken2.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# save_kraken_unassigned: null
+
+
+## =============================================================================
+## Quality Control
+## =============================================================================
+## Additional quality control options.
+
+## -----------------------------------------------------------------------------
+## extra_fqlint_args
+## -----------------------------------------------------------------------------
+##     Extra arguments to pass to the fq lint command.
+##     Type: string
+## -----------------------------------------------------------------------------
+# extra_fqlint_args: "--disable-validator P001"
+
+## -----------------------------------------------------------------------------
+## deseq2_vst
+## -----------------------------------------------------------------------------
+##     Use vst transformation instead of rlog with DESeq2.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# deseq2_vst: true
+
+## -----------------------------------------------------------------------------
+## rseqc_modules
+## -----------------------------------------------------------------------------
+##     Comma-separated list of RSeQC modules to run.
+##     Type: string
+## -----------------------------------------------------------------------------
+rseqc_modules: "bam_stat,inner_distance,infer_experiment,junction_annotation,junction_saturation,read_distribution,read_duplication"
+
+## -----------------------------------------------------------------------------
+## contaminant_screening
+## -----------------------------------------------------------------------------
+##     Tool to use for detecting contaminants in unaligned reads - available
+##     options are 'kraken2' and 'kraken2_bracken'
+##     Type: string
+## -----------------------------------------------------------------------------
+# contaminant_screening: null
+
+## -----------------------------------------------------------------------------
+## kraken_db
+## -----------------------------------------------------------------------------
+##     Database when using Kraken2/Bracken for contaminant screening.
+##     Type: string
+## -----------------------------------------------------------------------------
+# kraken_db: null
+
+## -----------------------------------------------------------------------------
+## bracken_precision
+## -----------------------------------------------------------------------------
+##     Taxonomic level for Bracken abundance estimations.
+##     Type: string
+## -----------------------------------------------------------------------------
+# bracken_precision: "S"
+
+
+## =============================================================================
+## Process skipping options
+## =============================================================================
+## Options to skip various steps within the workflow.
+
+## -----------------------------------------------------------------------------
+## skip_gtf_filter
+## -----------------------------------------------------------------------------
+##     Skip filtering of GTF for valid scaffolds and/ or transcript IDs.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_gtf_filter: null
+
+## -----------------------------------------------------------------------------
+## skip_gtf_transcript_filter
+## -----------------------------------------------------------------------------
+##     Skip the 'transcript_id' checking component of the GTF filtering
+##     script used in the pipeline. Ensure the GTF file is valid.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_gtf_transcript_filter: null
+
+## -----------------------------------------------------------------------------
+## skip_bbsplit
+## -----------------------------------------------------------------------------
+##     Skip BBSplit for removal of non-reference genome reads.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+skip_bbsplit: false
+
+## -----------------------------------------------------------------------------
+## skip_umi_extract
+## -----------------------------------------------------------------------------
+##     Skip the UMI extraction from the read in case the UMIs have been moved
+##     to the headers in advance of the pipeline run.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_umi_extract: null
+
+## -----------------------------------------------------------------------------
+## skip_linting
+## -----------------------------------------------------------------------------
+##     Skip linting checks during FASTQ preprocessing and filtering.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_linting: null
+
+## -----------------------------------------------------------------------------
+## skip_trimming
+## -----------------------------------------------------------------------------
+##     Skip the adapter trimming step.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_trimming: true
+
+## -----------------------------------------------------------------------------
+## skip_alignment
+## -----------------------------------------------------------------------------
+##     Skip all of the alignment-based processes within the pipeline.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_alignment: null
+
+## -----------------------------------------------------------------------------
+## skip_pseudo_alignment
+## -----------------------------------------------------------------------------
+##     Skip all of the pseudoalignment-based processes within the pipeline.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_pseudo_alignment: null
+
+## -----------------------------------------------------------------------------
+## skip_markduplicates
+## -----------------------------------------------------------------------------
+##     Skip picard MarkDuplicates step.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_markduplicates: null
+
+## -----------------------------------------------------------------------------
+## skip_bigwig
+## -----------------------------------------------------------------------------
+##     Skip bigWig file creation.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_bigwig: null
+
+## -----------------------------------------------------------------------------
+## skip_stringtie
+## -----------------------------------------------------------------------------
+##     Skip StringTie.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_stringtie: null
+
+## -----------------------------------------------------------------------------
+## skip_fastqc
+## -----------------------------------------------------------------------------
+##     Skip FastQC.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_fastqc: null
+
+## -----------------------------------------------------------------------------
+## skip_preseq
+## -----------------------------------------------------------------------------
+##     Skip Preseq.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_preseq: true
+
+## -----------------------------------------------------------------------------
+## skip_dupradar
+## -----------------------------------------------------------------------------
+##     Skip dupRadar.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_dupradar: null
+
+## -----------------------------------------------------------------------------
+## skip_qualimap
+## -----------------------------------------------------------------------------
+##     Skip Qualimap.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_qualimap: null
+
+## -----------------------------------------------------------------------------
+## skip_rseqc
+## -----------------------------------------------------------------------------
+##     Skip RSeQC.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_rseqc: null
+
+## -----------------------------------------------------------------------------
+## skip_biotype_qc
+## -----------------------------------------------------------------------------
+##     Skip additional featureCounts process for biotype QC.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_biotype_qc: null
+
+## -----------------------------------------------------------------------------
+## skip_deseq2_qc
+## -----------------------------------------------------------------------------
+##     Skip DESeq2 PCA and heatmap plotting.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_deseq2_qc: null
+
+## -----------------------------------------------------------------------------
+## skip_multiqc
+## -----------------------------------------------------------------------------
+##     Skip MultiQC.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_multiqc: null
+
+## -----------------------------------------------------------------------------
+## skip_qc
+## -----------------------------------------------------------------------------
+##     Skip all QC steps except for MultiQC.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# skip_qc: null
+
+
+## =============================================================================
+## Institutional config options
+## =============================================================================
+## Parameters used to describe centralised config profiles. These should not
+## be edited.
+
+## (6 hidden parameters are not shown)
+
+
+
+## =============================================================================
+## Generic options
+## =============================================================================
+## Less common options for the pipeline, typically set in a config file.
+
+## (12 hidden parameters are not shown)
+
+
+## -----------------------------------------------------------------------------
+## multiqc_methods_description
+## -----------------------------------------------------------------------------
+##     Custom MultiQC yaml file containing HTML including a methods
+##     description.
+##     Type: string
+## -----------------------------------------------------------------------------
+# multiqc_methods_description: null
+
+

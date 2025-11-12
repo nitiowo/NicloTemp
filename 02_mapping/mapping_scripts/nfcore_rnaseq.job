@@ -1,28 +1,18 @@
 #!/bin/bash
-#$ -pe smp 4
+#$ -pe smp 12
 #$ -q largemem
-#$ -N rnaseq_real_job
+#$ -N rnaseq_10k
 #$ -o job_logs/
 #$ -e job_logs/
 
-# Inputs
-samplesheet="/temp180/mpfrende/nvincen2/NicloTemp/01_QC/trimmed/combined_lanes/samplesheet.csv"
-genome="/temp180/mpfrende/nvincen2/NicloTemp/Data/reference_data/Combined/combined_genomic.fna"
-gtf="/temp180/mpfrende/nvincen2/NicloTemp/Data/reference_data/Combined/combined_genomic.gtf"
-outdir="/temp180/mpfrende/nvincen2/NicloTemp/02_mapping/nfcore_output"
-email="nvincen2@nd.edu"
 
 # Load the nf-core software module
-module load bio/nf-core
+conda activate nfcore-env
 
 # Set the Singularity cache directory
-export NXF_SINGULARITY_CACHEDIR=/software/n/nf-core/3.3.1/singularity
+export NXF_SINGULARITY_CACHEDIR=/users/nvincen2/.singularity
 
-# Run the nf-core/rnaseq pipeline
-nextflow run nf-core/rnaseq -r 3.19.0 \
-    -profile singularity \
-    --input $samplesheet \
-    --fasta $genome \
-    --gtf $gtf \
-    --outdir $outdir \
-    --email $email
+# Run the pipeline
+nextflow run nf-core/rnaseq \
+-profile singularity \
+-params-file nf-rnaseq-params-10k.yml
