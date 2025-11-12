@@ -1,17 +1,16 @@
 #!/bin/bash
-#$ -pe smp 24
-#$ -q long
-#$ -N rnaseq_example_job
+#$ -pe smp 4
+#$ -q largemem
+#$ -N rnaseq_real_job
 #$ -o job_logs/
 #$ -e job_logs/
 
 # Inputs
-samplesheet=""
-genome=""
-gtf=""
-outdir=""
-email=""
-
+samplesheet="/temp180/mpfrende/nvincen2/NicloTemp/01_QC/trimmed/combined_lanes/samplesheet.csv"
+genome="/temp180/mpfrende/nvincen2/NicloTemp/Data/reference_data/Combined/combined_genomic.fna"
+gtf="/temp180/mpfrende/nvincen2/NicloTemp/Data/reference_data/Combined/combined_genomic.gtf"
+outdir="/temp180/mpfrende/nvincen2/NicloTemp/02_mapping/nfcore_output"
+email="nvincen2@nd.edu"
 
 # Load the nf-core software module
 module load bio/nf-core
@@ -24,6 +23,6 @@ nextflow run nf-core/rnaseq -r 3.19.0 \
     -profile singularity \
     --input $samplesheet \
     --fasta $genome \
-    --gtf /path/to/your/genes.gtf.gz \
-    --outdir /path/to/your/results/folder \
-    --email <netID>@nd.edu
+    --gtf $gtf \
+    --outdir $outdir \
+    --email $email
