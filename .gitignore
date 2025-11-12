@@ -12,6 +12,7 @@ work/
 **/*nextflow.log*
 nfcore_output/
 test_outputs/
+nf-core-rnaseq_3.21.0/
 
 # Fasta/data files #
 ###############
