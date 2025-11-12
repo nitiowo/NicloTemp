@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -pe smp 12
 #$ -q largemem
-#$ -N rnaseq_10k
+#$ -N rnaseq_full
 #$ -o job_logs/
 #$ -e job_logs/
 
@@ -15,4 +15,4 @@ export NXF_SINGULARITY_CACHEDIR=/users/nvincen2/.singularity
 # Run the pipeline
 nextflow run nf-core/rnaseq \
 -profile singularity \
--params-file nf-rnaseq-params-10k.yml
+-params-file nf-rnaseq-params-full.yml

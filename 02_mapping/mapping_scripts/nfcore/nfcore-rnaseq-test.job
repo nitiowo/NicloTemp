@@ -1,0 +1,17 @@
+#!/bin/bash
+#$ -pe smp 12
+#$ -q largemem
+#$ -N rnaseq_test
+#$ -o job_logs/
+#$ -e job_logs/
+
+
+module load bio/nf-core
+
+# Set the Singularity cache directory
+export NXF_SINGULARITY_CACHEDIR=/software/n/nf-core/3.3.1/singularity
+
+# Run the pipeline
+nextflow run nf-core/rnaseq -r 3.19.0\
+-profile test,singularity \
+--outdir ../test_outputs/
