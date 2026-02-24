@@ -51,3 +51,6 @@ nf-core-rnaseq_3.21.0/
 ############
 **/*joblog*
 **/*.hisat2.log
+
+# Testing #
+**/*testing_grounds*
