@@ -1,0 +1,24 @@
+#!/bin/bash
+#$ -M nvincen2@nd.edu
+#$ -m abe
+#$ -pe smp 24
+#$ -q largemem
+#$ -N rnaseq_full
+#$ -o job_logs/
+#$ -e job_logs/
+
+# Run nf-core/rnaseq on concatenated Btru+Shae genome
+# Requires: combined genome built by prefix_combine.sh
+#           lane-merged reads built by 01_QC/read_combine.sh
+#           samplesheet at metadata/samplesheet.csv
+# Run from: NicloTemp/02_alignment/
+
+conda activate nfcore-env
+
+export NXF_SINGULARITY_CACHEDIR=/users/nvincen2/.singularity
+
+nextflow run nf-core/rnaseq \
+    -profile singularity \
+    -params-file nf-params.yml \
+    -name full_reads
+#    -resume

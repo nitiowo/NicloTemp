@@ -1,0 +1,32 @@
+#!/bin/bash
+#$ -M nvincen2@nd.edu
+#$ -m abe
+#$ -q long
+#$ -pe smp 8
+#$ -N initQC
+#$ -o job_logs/
+#$ -e job_logs/
+
+# Initial FastQC + MultiQC on raw reads from both sequencing lanes
+# Run from: NicloTemp/01_QC/
+
+module load bio/0724
+
+mkdir -p initial_qc/fastqc_out_52
+mkdir -p initial_qc/fastqc_out_53
+
+fastqc ../../Data/fastq_data/run_52/*.fastq.gz \
+    --outdir initial_qc/fastqc_out_52 \
+    --threads 8
+
+fastqc ../../Data/fastq_data/run_53/*.fastq.gz \
+    --outdir initial_qc/fastqc_out_53 \
+    --threads 8
+
+mkdir -p initial_qc/multiqc_out_52
+mkdir -p initial_qc/multiqc_out_53
+
+multiqc initial_qc/fastqc_out_52 -o initial_qc/multiqc_out_52 -n multiqc_report_52.html
+multiqc initial_qc/fastqc_out_53 -o initial_qc/multiqc_out_53 -n multiqc_report_53.html
+
+module unload
