@@ -1,0 +1,20 @@
+#!/bin/bash
+#$ -pe smp 24
+#$ -q largemem
+#$ -N rnaseq_full
+#$ -o job_logs/
+#$ -e job_logs/
+
+# nf-core/rnaseq with concatenated Btru+Shae genome (no BBsplit)
+# Run from: <HPC_WORKDIR>/NicloTemp/01_alignment/scripts/
+# Submit with: qsub nfcore_rnaseq.job
+
+conda activate nfcore-env
+
+export NXF_SINGULARITY_CACHEDIR=$HOME/.singularity
+
+nextflow run nf-core/rnaseq \
+    -profile singularity \
+    -params-file nf-params.yml \
+    -name full_reads
+#    -resume

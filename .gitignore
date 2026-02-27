@@ -26,6 +26,7 @@ nf-core-rnaseq_3.21.0/
 **/*faa
 **/*jsonl
 **/*zip
+**/Data/*
 
 # R files #
 ###########
@@ -54,3 +55,6 @@ nf-core-rnaseq_3.21.0/
 
 # Testing #
 **/*testing_grounds*
+
+# Old files archive
+**/*old*
