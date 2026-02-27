@@ -1,19 +1,19 @@
 # nf-core/rnaseq 3.21.0 parameter file
-# Concatenated genome approach: Btru + Shae genomes prefixed (Btru_/Shae_) and
+# Concatenated genomes: Btru + Shae genomes prefixed (Btru_/Shae_) and
 # combined into a single FASTA/GTF. All reads map to combined genome simultaneously;
-# count matrix is split by species prefix in R after the pipeline.
+# count matrix is split by species prefix after the pipeline.
 # BBsplit is disabled. Strandedness is reverse (confirmed from previous runs).
-# Starting from raw lane-merged reads (01_read_combine.sh merges lanes before this).
+# Starting from raw lane-merged reads (trim.job merges raw lanes before this runs).
 
 # ---- Input/output ----
 # Update these paths to match your HPC directory structure
-input: "<HPC_WORKDIR>/NicloTemp/00_setup/samplesheet_raw.csv"
-outdir: "<HPC_WORKDIR>/NicloTemp/01_alignment/output/nfcore_output"
+input: "NicloTemp/00_setup/samplesheet_raw.csv"
+outdir: "NicloTemp/01_alignment/output/nfcore_output"
 multiqc_title: "NicloTemp_concatenated_genome_full"
 
 # ---- Reference genome ----
-fasta: "<HPC_WORKDIR>/NicloTemp/Data/reference_data/Combined/combined.genome.fna"
-gtf: "<HPC_WORKDIR>/NicloTemp/Data/reference_data/Combined/combined.genome.gtf"
+fasta: "NicloTemp/Data/reference_data/Combined/combined.genome.fna"
+gtf: "NicloTemp/Data/reference_data/Combined/combined.genome.gtf"
 
 # ---- Alignment ----
 aligner: "star_salmon"
