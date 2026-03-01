@@ -1,0 +1,50 @@
+#!/bin/bash
+#$ -pe smp 8
+#$ -q largemem
+#$ -N emapper
+#$ -o output/job_logs/
+#$ -e output/job_logs/
+
+# Run eggNOG-mapper on Btru and Shae protein FASTAs
+
+set -e
+
+conda activate emapper-env
+
+REPO="$(cd "${SGE_O_WORKDIR}/../.." && pwd)"
+OUTDIR="${REPO}/00_setup/03_GO_annotation/output/step02_emapper"
+DB_DIR="${REPO}/Data/emapper_db"
+mkdir -p "$OUTDIR"
+mkdir -p "${REPO}/00_setup/03_GO_annotation/output/job_logs"
+
+BTRU_FAA="${REPO}/Data/reference_data/Btru/GCA_021962125.1/Btru_protein.faa"
+SHAE_FAA="${REPO}/Data/reference_data/Shae/GCF_000699445.3/Shae_protein.faa"
+
+CPUS=${NSLOTS:-8}
+
+# ---- Run eggNOG-mapper on Btru ----
+
+emapper.py \
+    -i "$BTRU_FAA" \
+    --output btru_emapper \
+    --output_dir "$OUTDIR" \
+    --cpu "$CPUS" \
+    --data_dir "$DB_DIR" \
+    -m diamond \
+    --go_evidence non-electronic \
+    --tax_scope 33208 \
+    --override
+
+
+# ---- Run eggNOG-mapper on Shae ----
+
+emapper.py \
+    -i "$SHAE_FAA" \
+    --output shae_emapper \
+    --output_dir "$OUTDIR" \
+    --cpu "$CPUS" \
+    --data_dir "$DB_DIR" \
+    -m diamond \
+    --go_evidence non-electronic \
+    --tax_scope 33208 \
+    --override
