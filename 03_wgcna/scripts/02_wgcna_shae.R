@@ -1,3 +1,8 @@
+# WGCA for Shae
+
+# Input: shae_vsd.rds, metdata.rds
+# Output: network object, module assignments, eigengene-trait correlations, plots
+
 library(WGCNA)
 library(DESeq2)
 library(dplyr)
@@ -38,6 +43,29 @@ sft <- pickSoftThreshold(expr_filt, powerVector = powers, verbose = 5,
                          networkType = "signed",
                          corFnc = "cor", corOptions = list(use = "p"))
 
+pdf(file.path(out_dir, "soft_threshold.pdf"), width = 10, height = 5)
+par(mfrow = c(1, 2))
+
+plot(sft$fitIndices[, 1],
+     -sign(sft$fitIndices[, 3]) * sft$fitIndices[, 2],
+     xlab = "Soft Threshold (power)",
+     ylab = "Scale Free Topology Model Fit (signed R^2)",
+     main = "Scale independence", type = "n")
+text(sft$fitIndices[, 1],
+     -sign(sft$fitIndices[, 3]) * sft$fitIndices[, 2],
+     labels = powers, col = "red")
+abline(h = 0.80, col = "red")
+
+plot(sft$fitIndices[, 1], sft$fitIndices[, 5],
+     xlab = "Soft Threshold (power)",
+     ylab = "Mean Connectivity",
+     main = "Mean connectivity", type = "n")
+text(sft$fitIndices[, 1], sft$fitIndices[, 5],
+     labels = powers, col = "red")
+
+par(mfrow = c(1, 1))
+dev.off()
+
 picked_power <- sft$powerEstimate
 if (is.na(picked_power)) {
     picked_power <- 12
@@ -60,6 +88,15 @@ net <- blockwiseModules(
 )
 
 module_colors <- labels2colors(net$colors)
+print(table(module_colors))
+
+pdf(file.path(out_dir, "module_dendrogram.pdf"), width = 12, height = 6)
+plotDendroAndColors(net$dendrograms[[1]],
+                    module_colors[net$blockGenes[[1]]],
+                    "Module colors", dendroLabels = FALSE,
+                    hang = 0.03, addGuide = TRUE, guideHang = 0.05,
+                    main = "Shae gene dendrogram and module colors")
+dev.off()
 
 # ---- Module Eigengenes ----
 MEs <- net$MEs
@@ -79,6 +116,29 @@ traits <- traits[rownames(expr_filt), ]
 n_samples <- nrow(expr_filt)
 cor_mat <- cor(MEs, traits, use = "p")
 pval_mat <- corPvalueStudent(cor_mat, n_samples)
+
+text_mat <- matrix(
+    paste0(signif(cor_mat, 2), "\n(", signif(pval_mat, 1), ")"),
+    nrow = nrow(cor_mat)
+)
+
+pdf(file.path(out_dir, "module_trait_correlation.pdf"),
+    width = 7, height = max(4, nrow(cor_mat) * 0.4 + 2))
+par(mar = c(6, 8, 3, 3))
+labeledHeatmap(
+    Matrix = cor_mat,
+    xLabels = colnames(traits),
+    yLabels = colnames(MEs),
+    ySymbols = colnames(MEs),
+    colorLabels = FALSE,
+    colors = blueWhiteRed(50),
+    textMatrix = text_mat,
+    setStdMargins = FALSE,
+    cex.text = 0.6,
+    zlim = c(-1, 1),
+    main = "Shae module-trait correlation (infected only)"
+)
+dev.off()
 
 # ---- Save Objects ----
 gene_modules <- data.frame(

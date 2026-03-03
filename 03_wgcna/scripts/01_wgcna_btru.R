@@ -31,11 +31,43 @@ if (!gsg$allOK) {
     expr_filt <- expr_filt[gsg$goodSamples, gsg$goodGenes]
 }
 
+# Sample dendrogram
+sample_tree <- hclust(dist(expr_filt), method = "average")
+
+pdf(file.path(out_dir, "sample_dendrogram.pdf"), width = 12, height = 5)
+plot(sample_tree, main = "Btru sample clustering",
+     sub = "", xlab = "", cex = 0.7)
+dev.off()
+
 # ---- Soft Threshold ----
 powers <- c(1:10, seq(12, 30, by = 2))
 sft <- pickSoftThreshold(expr_filt, powerVector = powers, verbose = 5,
                          networkType = "signed",
                          corFnc = "cor", corOptions = list(use = "p"))
+
+# Plot topology fit and  connectivity
+pdf(file.path(out_dir, "soft_threshold.pdf"), width = 10, height = 5)
+par(mfrow = c(1, 2))
+
+plot(sft$fitIndices[, 1],
+     -sign(sft$fitIndices[, 3]) * sft$fitIndices[, 2],
+     xlab = "Soft Threshold (power)",
+     ylab = "Scale Free Topology Model Fit (signed R^2)",
+     main = "Scale independence", type = "n")
+text(sft$fitIndices[, 1],
+     -sign(sft$fitIndices[, 3]) * sft$fitIndices[, 2],
+     labels = powers, col = "red")
+abline(h = 0.80, col = "red")
+
+plot(sft$fitIndices[, 1], sft$fitIndices[, 5],
+     xlab = "Soft Threshold (power)",
+     ylab = "Mean Connectivity",
+     main = "Mean connectivity", type = "n")
+text(sft$fitIndices[, 1], sft$fitIndices[, 5],
+     labels = powers, col = "red")
+
+par(mfrow = c(1, 1))
+dev.off()
 
 # Default 12
 picked_power <- sft$powerEstimate
@@ -60,6 +92,16 @@ net <- blockwiseModules(
 )
 
 module_colors <- labels2colors(net$colors)
+print(table(module_colors))
+
+# Module dendrogram
+pdf(file.path(out_dir, "module_dendrogram.pdf"), width = 12, height = 6)
+plotDendroAndColors(net$dendrograms[[1]],
+                    module_colors[net$blockGenes[[1]]],
+                    "Module colors", dendroLabels = FALSE,
+                    hang = 0.03, addGuide = TRUE, guideHang = 0.05,
+                    main = "Btru gene dendrogram and module colors")
+dev.off()
 
 # ---- Module Eigengenes ----
 MEs <- net$MEs
@@ -80,6 +122,29 @@ traits <- traits[rownames(expr_filt), ]
 n_samples <- nrow(expr_filt)
 cor_mat <- cor(MEs, traits, use = "p")
 pval_mat <- corPvalueStudent(cor_mat, n_samples)
+
+text_mat <- matrix(
+    paste0(signif(cor_mat, 2), "\n(", signif(pval_mat, 1), ")"),
+    nrow = nrow(cor_mat)
+)
+
+pdf(file.path(out_dir, "module_trait_correlation.pdf"),
+    width = 8, height = max(4, nrow(cor_mat) * 0.4 + 2))
+par(mar = c(6, 8, 3, 3))
+labeledHeatmap(
+    Matrix = cor_mat,
+    xLabels = colnames(traits),
+    yLabels = colnames(MEs),
+    ySymbols = colnames(MEs),
+    colorLabels = FALSE,
+    colors = blueWhiteRed(50),
+    textMatrix = text_mat,
+    setStdMargins = FALSE,
+    cex.text = 0.6,
+    zlim = c(-1, 1),
+    main = "Btru module-trait correlation"
+)
+dev.off()
 
 # ---- Save Objects ----
 
