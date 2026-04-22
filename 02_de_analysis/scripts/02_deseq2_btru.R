@@ -46,6 +46,27 @@ dds$temp_C <- relevel(dds$temp_C, ref = "24")
 dds <- DESeq(dds)
 print(resultsNames(dds))
 
+# ---- Custom Averaged Contrasts for Main Effects ----
+# Grab the custom contrasts for each effect
+
+mm <- model.matrix(design(dds), data = as.data.frame(colData(dds)))
+
+cntr_infection <- colMeans(mm[dds$infection == "infected", ]) -
+                  colMeans(mm[dds$infection == "uninfected", ])
+res_infection <- results(dds, contrast = cntr_infection)
+
+cntr_16v24 <- colMeans(mm[dds$temp_C == "16", ]) -
+              colMeans(mm[dds$temp_C == "24", ])
+res_temp_16v24 <- results(dds, contrast = cntr_16v24)
+
+cntr_32v24 <- colMeans(mm[dds$temp_C == "32", ]) -
+              colMeans(mm[dds$temp_C == "24", ])
+res_temp_32v24 <- results(dds, contrast = cntr_32v24)
+
+cntr_niclo <- colMeans(mm[dds$niclo_ppm == "0.05", ]) -
+              colMeans(mm[dds$niclo_ppm == "0", ])
+res_niclo <- results(dds, contrast = cntr_niclo)
+
 # ---- LFC Shrinkage (apeglm) ----
 
 res_infection_shr <- lfcShrink(dds, coef = "infection_infected_vs_uninfected", type = "apeglm")
@@ -150,12 +171,7 @@ pheatmap(dist_mat,
          main = "Btru sample distance (VST)")
 dev.off()
 
-# ---- Extract Key Contrasts ----
-
-res_infection <- results(dds, name = "infection_infected_vs_uninfected", alpha = 0.05)
-res_temp_16v24 <- results(dds, name = "temp_C_16_vs_24", alpha = 0.05)
-res_temp_32v24 <- results(dds, name = "temp_C_32_vs_24", alpha = 0.05)
-res_niclo <- results(dds, name = "niclo_ppm_0.05_vs_0", alpha = 0.05)
+# ---- Summarize Main Effects ----
 
 summarize_res(res_infection, "Infection (S vs R)")
 summarize_res(res_temp_16v24, "Temperature (16C vs 24C)")

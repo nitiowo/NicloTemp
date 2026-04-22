@@ -102,8 +102,8 @@ run_gsea <- function(res_file, gene2go, go2name, kegg_t2g,
 
 results <- list()
 
-btru_contrasts <- c("temp24v16", "temp32v16", "infection", "niclosamide")
-shae_contrasts <- c("temp24v16", "temp32v16", "niclosamide")
+btru_contrasts <- c("temp16v24", "temp32v24", "infection", "niclosamide")
+shae_contrasts <- c("temp16v24", "temp32v24", "niclosamide")
 
 for (ct in btru_contrasts) {
   res_file <- file.path(de_dir, "btru", paste0("btru_res_", ct, ".tsv"))
@@ -121,3 +121,24 @@ for (ct in shae_contrasts) {
 
 summary_df <- bind_rows(results)
 write_tsv(summary_df, file.path(out_dir, "gsea_summary.tsv"))
+
+# ---- Summary Top-3 Table ----
+# Top 3 up and top 3 down GO terms by NES per contrast
+
+combinations <- bind_rows(
+  tibble(species = "btru", contrast = btru_contrasts),
+  tibble(species = "shae", contrast = shae_contrasts)
+)
+
+highlights <- combinations %>%
+  mutate(fname = file.path(out_dir, paste0(species, "_", contrast, "_go_gsea.tsv"))) %>%
+  filter(file.exists(fname)) %>%  
+  mutate(data = map(fname, ~ read_tsv(.x, show_col_types = FALSE) %>% filter(p.adjust < 0.05))) %>%
+  unnest(data) %>% 
+  mutate(direction = if_else(NES > 0, "up", "down")) %>%
+  group_by(species, contrast, direction) %>%
+  slice_max(order_by = abs(NES), n = 3, with_ties = FALSE) %>%
+  ungroup() %>%
+  select(species, contrast, direction, ID, Description, NES, setSize, p.adjust)
+
+write_tsv(highlights, file.path(out_dir, "gsea_highlights.tsv"))

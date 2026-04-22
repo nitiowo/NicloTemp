@@ -20,8 +20,8 @@ shae_go2name <- readRDS(file.path(annot_dir, "step05_go_objects/shae_go2name.Rds
 shae_kegg <- readRDS(file.path(annot_dir, "step06_kegg_objects/shae_kegg_term2gene.Rds"))
 
 # Contrasts
-btru_contrasts <- c("temp24v16", "temp32v16", "infection", "niclosamide")
-shae_contrasts <- c("temp24v16", "temp32v16", "niclosamide")
+btru_contrasts <- c("temp16v24", "temp32v24", "infection", "niclosamide")
+shae_contrasts <- c("temp16v24", "temp32v24", "niclosamide")
 
 # ---- ORA Function ----
 # Runs GO + KEGG ORA for a set of DE genes against a universe

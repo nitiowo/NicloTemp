@@ -18,8 +18,8 @@ me_shae <- read_tsv("03_wgcna/output/shae/shae_module_eigengenes.tsv",
                      show_col_types = FALSE)
 
 
-me_cols_btru <- grep("^X\\d+$", names(me_btru), value = TRUE)
-me_cols_shae <- grep("^X\\d+$", names(me_shae), value = TRUE)
+me_cols_btru <- grep("^X?[0-9]+$", names(me_btru), value = TRUE)
+me_cols_shae <- grep("^X?[0-9]+$", names(me_shae), value = TRUE)
 
 # ---- Split Btru by Infection Status ----
 
@@ -95,14 +95,29 @@ res_uninf <- cor_and_pval(aligned_uninf$me, aligned_uninf$trait)
 res_inf <- cor_and_pval(aligned_inf$me, aligned_inf$trait)
 res_shae <- cor_and_pval(aligned_shae$me, aligned_shae$trait)
 
+# BH adjustment for all module-trait pairs per analysis
+bh_adjust_matrix <- function(pval_mat) {
+  adj <- matrix(p.adjust(pval_mat, method = "BH"),
+                nrow = nrow(pval_mat),
+                dimnames = dimnames(pval_mat))
+  adj
+}
+
+res_uninf$pval_bh <- bh_adjust_matrix(res_uninf$pval)
+res_inf$pval_bh <- bh_adjust_matrix(res_inf$pval)
+res_shae$pval_bh <- bh_adjust_matrix(res_shae$pval)
+
 # ---- Save Results ----
 
-write.csv(res_uninf$cor, file.path(out_mt, "cor_btru_uninf.csv"))
-write.csv(res_uninf$pval, file.path(out_mt, "pval_btru_uninf.csv"))
-write.csv(res_inf$cor, file.path(out_mt, "cor_btru_inf.csv"))
-write.csv(res_inf$pval, file.path(out_mt, "pval_btru_inf.csv"))
-write.csv(res_shae$cor, file.path(out_mt, "cor_shae.csv"))
-write.csv(res_shae$pval, file.path(out_mt, "pval_shae.csv"))
+write.csv(res_uninf$cor, file.path(out_mt, "btru_uninf_module_trait_cor.csv"))
+write.csv(res_uninf$pval, file.path(out_mt, "btru_uninf_module_trait_pval_raw.csv"))
+write.csv(res_uninf$pval_bh, file.path(out_mt, "btru_uninf_module_trait_pval_bh.csv"))
+write.csv(res_inf$cor, file.path(out_mt, "btru_inf_module_trait_cor.csv"))
+write.csv(res_inf$pval, file.path(out_mt, "btru_inf_module_trait_pval_raw.csv"))
+write.csv(res_inf$pval_bh, file.path(out_mt, "btru_inf_module_trait_pval_bh.csv"))
+write.csv(res_shae$cor, file.path(out_mt, "shae_module_trait_cor.csv"))
+write.csv(res_shae$pval, file.path(out_mt, "shae_module_trait_pval_raw.csv"))
+write.csv(res_shae$pval_bh, file.path(out_mt, "shae_module_trait_pval_bh.csv"))
 
 # ---- Module-Trait Heatmap ----
 
@@ -130,11 +145,12 @@ plot_module_trait_heatmap <- function(cor_mat, pval_mat, title) {
     theme(axis.text.x = element_text(angle = 55, hjust = 1))
 }
 
-p_heat_uninf <- plot_module_trait_heatmap(res_uninf$cor, res_uninf$pval,
+# Make sure everything is BH-corrected
+p_heat_uninf <- plot_module_trait_heatmap(res_uninf$cor, res_uninf$pval_bh,
                                           "Module-Trait Cor: B. truncatus Uninfected")
-p_heat_inf <- plot_module_trait_heatmap(res_inf$cor, res_inf$pval,
+p_heat_inf <- plot_module_trait_heatmap(res_inf$cor, res_inf$pval_bh,
                                         "Module-Trait Cor: B. truncatus Infected")
-p_heat_shae <- plot_module_trait_heatmap(res_shae$cor, res_shae$pval,
+p_heat_shae <- plot_module_trait_heatmap(res_shae$cor, res_shae$pval_bh,
                                          "Module-Trait Cor: S. haematobium")
 
 pdf(file.path(out_fig, "module_trait_heatmap_btru_uninf.pdf"), width = 12, height = 8)
@@ -151,22 +167,53 @@ dev.off()
 
 # ---- Top Hits ----
 
-# Print top module-trait associations ranked by p-value
-print_top_hits <- function(cor_mat, pval_mat, label, n = 10) {
+top_hits_df <- function(cor_mat, pval_mat, pval_bh, label, n = 20) {
   cor_long <- as.data.frame(as.table(as.matrix(cor_mat)))
   names(cor_long) <- c("module", "trait", "r")
-
   pval_long <- as.data.frame(as.table(as.matrix(pval_mat)))
   names(pval_long) <- c("module", "trait", "pval")
+  bh_long <- as.data.frame(as.table(as.matrix(pval_bh)))
+  names(bh_long) <- c("module", "trait", "pval_bh")
 
-  df <- left_join(cor_long, pval_long, by = c("module", "trait")) %>%
-    arrange(pval) %>%
+  cor_long %>%
+    left_join(pval_long, by = c("module", "trait")) %>%
+    left_join(bh_long, by = c("module", "trait")) %>%
+    mutate(label = label) %>%
+    arrange(pval_bh, pval) %>%
     head(n)
-
-  print(paste0("--- Top ", n, " hits: ", label, " ---"))
-  print(df)
 }
 
-print_top_hits(res_uninf$cor, res_uninf$pval, "btru_uninf")
-print_top_hits(res_inf$cor, res_inf$pval, "btru_inf")
-print_top_hits(res_shae$cor, res_shae$pval, "shae")
+top_hits <- bind_rows(
+  top_hits_df(res_uninf$cor, res_uninf$pval, res_uninf$pval_bh, "btru_uninf"),
+  top_hits_df(res_inf$cor, res_inf$pval, res_inf$pval_bh, "btru_inf"),
+  top_hits_df(res_shae$cor, res_shae$pval, res_shae$pval_bh, "shae")
+)
+write_tsv(top_hits, file.path(out_mt, "module_trait_top_hits.tsv"))
+
+# ---- Parasite as Continuous Variable ----
+# Correlate module eigengenes with % Shae reads in infected Btru samples
+# Infection proxy - check with Emily - use housekeeping gene??
+
+species_sum <- read_csv("02_de_analysis/output/qc/species_summary.csv",
+                         show_col_types = FALSE)
+shae_pct <- species_sum %>%
+  filter(sample %in% meta_inf$sample) %>%
+  select(sample, pct_shae) %>%
+  arrange(match(sample, pull(me_btru_inf, sample)))
+
+me_inf_aligned <- me_btru_inf %>%
+  filter(sample %in% shae_pct$sample) %>%
+  arrange(match(sample, shae_pct$sample))
+
+para_cor <- sapply(me_cols_btru, function(mod) {
+  ct <- cor.test(me_inf_aligned[[mod]], shae_pct$pct_shae,
+                 method = "spearman", exact = FALSE)
+  c(r = unname(ct$estimate), p = ct$p.value)
+})
+para_df <- data.frame(
+  module = me_cols_btru,
+  rho = para_cor["r", ],
+  pval = para_cor["p", ]
+) %>% arrange(pval)
+
+write_tsv(para_df, file.path(out_mt, "btru_parasite_burden_module_cor.tsv"))

@@ -9,11 +9,11 @@ out_dir <- file.path(base_dir, "05_enrichment/output/cross_species")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 # Shared contrasts between Btru and Shae
-shared_contrasts <- c("temp24v16", "temp32v16", "niclosamide")
+shared_contrasts <- c("temp16v24", "temp32v24", "niclosamide")
 
 
 # ---- Compare ORA Results ----
-# Wonky outputs - check. Skip ORA just use GSEA.
+
 ora_comparison <- list()
 
 for (ct in shared_contrasts) {
@@ -26,18 +26,18 @@ for (ct in shared_contrasts) {
     shae_go <- read_tsv(shae_file, show_col_types = FALSE) %>%
       filter(p.adjust < 0.05)
     
-    shared <- setdiff(btru_go$ID, shae_go$ID)
+    shared <- intersect(btru_go$ID, shae_go$ID)
     btru_only <- setdiff(btru_go$ID, shae_go$ID)
     shae_only <- setdiff(shae_go$ID, btru_go$ID)
         
     if (length(shared) > 0) {
       shared_df <- btru_go %>%
         filter(ID %in% shared) %>%
-        select(ID, Description, btru_padj = p, btru_count = Count) %>%
+        select(ID, Description, btru_padj = p.adjust, btru_count = Count) %>%
         left_join(
           shae_go %>%
             filter(ID %in% shared) %>%
-            select(ID, shae_padj = p, shae_count = Count),
+            select(ID, shae_padj = p.adjust, shae_count = Count),
           by = "ID"
         ) %>%
         mutate(contrast = ct, direction = dir)

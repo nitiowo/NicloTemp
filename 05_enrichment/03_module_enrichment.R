@@ -11,9 +11,9 @@ dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 # ----Load Annotations ----
 
-btru_g2go_temp <- readRDS(file.path(annot_dir, "step05_go_objects/btru_gene2go.Rds"))
-btru_go2name_temp <- readRDS(file.path(annot_dir, "step05_go_objects/btru_go2name.Rds"))
-btru_kegg_temp <- readRDS(file.path(annot_dir, "step06_kegg_objects/btru_kegg_term2gene.Rds"))
+btru_g2go <- readRDS(file.path(annot_dir, "step05_go_objects/btru_gene2go.Rds"))
+btru_go2name <- readRDS(file.path(annot_dir, "step05_go_objects/btru_go2name.Rds"))
+btru_kegg <- readRDS(file.path(annot_dir, "step06_kegg_objects/btru_kegg_term2gene.Rds"))
 
 shae_g2go <- readRDS(file.path(annot_dir, "step05_go_objects/shae_gene2go.Rds"))
 shae_go2name <- readRDS(file.path(annot_dir, "step05_go_objects/shae_go2name.Rds"))
@@ -85,8 +85,6 @@ run_module_ora <- function(gene_mods, gene2go, go2name, kegg_t2g,
       }
     }
     
-    cat(sprintf("  %s %-15s (%d genes): GO=%d, KEGG=%d\n",
-                species, color, length(mod_genes), go_n, kegg_n))
   }
   
   if (length(all_results) > 0) {
@@ -137,9 +135,9 @@ for (sp in c("btru", "shae")) {
   # Truncate long descriptions: TODO: fix this!! - check Neil code
   top_terms$label <- str_trunc(top_terms$Description, 50)
   
-  p <- ggplot(top_terms, aes(x = module, y = label, fill = p.adjust))) +
+  p <- ggplot(top_terms, aes(x = module, y = label, fill = -log10(p.adjust))) +
     geom_tile(color = "white") +
-    scale_fill_manual(low = "lightyellow", high = "red3", name = "-log10(padj)") +
+    scale_fill_gradient(low = "lightyellow", high = "red3", name = "-log10(padj)") +
     theme_minimal(base_size = 10) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
           axis.text.y = element_text(size = 7)) +
@@ -158,3 +156,16 @@ mod_summary <- combined %>%
   pivot_wider(names_from = db, values_from = n_sig, values_fill = 0)
 
 write_tsv(mod_summary, file.path(out_dir, "module_enrichment_summary.tsv"))
+
+# ---- Module Top-Terms Table ----
+# Top 3 GO terms per module by padj
+
+mod_top_terms <- combined %>%
+  filter(db == "GO", p.adjust < 0.05) %>%
+  group_by(species, module) %>%
+  slice_min(p.adjust, n = 3) %>%
+  mutate(rank = row_number()) %>%
+  ungroup() %>%
+  select(species, module, rank, Description, p.adjust, Count)
+
+write_tsv(mod_top_terms, file.path(out_dir, "module_top_terms.tsv"))

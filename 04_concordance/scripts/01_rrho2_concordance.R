@@ -151,20 +151,22 @@ dev.off()
 # ---- KO-level Fold-Change Concordance ----
 # For shared KOs, compare log2FC between Btru and Shae
 
-ko_fc_comparison <- function(btru_df, shae_df, label) {
-    btru_ko_fc <- btru_df %>%
-        inner_join(btru_ko, by = "gene_id") %>%
-        filter(KO %in% shared_kos) %>%
+ko_fc_from_all_genes <- function(df, ko_map, shared) {
+    df <- df[!is.na(df$log2FoldChange), ]
+    inner_join(df, ko_map, by = "gene_id") %>%
+        filter(KO %in% shared) %>%
         group_by(KO) %>%
-        summarise(btru_lfc = median(log2FoldChange),
-                  btru_padj = min(padj), .groups = "drop")
+        summarise(lfc = median(log2FoldChange),
+                  padj = min(padj, na.rm = TRUE),
+                  .groups = "drop")
+}
 
-    shae_ko_fc <- shae_df %>%
-        inner_join(shae_ko, by = "gene_id") %>%
-        filter(KO %in% shared_kos) %>%
-        group_by(KO) %>%
-        summarise(shae_lfc = median(log2FoldChange),
-                  shae_padj = min(padj), .groups = "drop")
+ko_fc_comparison <- function(btru_df, shae_df, label) {
+    btru_ko_fc <- ko_fc_from_all_genes(btru_df, btru_ko, shared_kos) %>%
+        transmute(KO, btru_lfc = lfc, btru_padj = padj)
+
+    shae_ko_fc <- ko_fc_from_all_genes(shae_df, shae_ko, shared_kos) %>%
+        transmute(KO, shae_lfc = lfc, shae_padj = padj)
 
     merged <- inner_join(btru_ko_fc, shae_ko_fc, by = "KO")
     merged$contrast <- label

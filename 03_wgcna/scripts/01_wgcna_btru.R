@@ -165,5 +165,7 @@ write_tsv(me_df, file.path(out_dir, "btru_module_eigengenes.tsv"))
 
 saveRDS(net, file.path(out_dir, "btru_wgcna_net.rds"))
 saveRDS(MEs, file.path(out_dir, "btru_MEs.rds"))
+saveRDS(top_genes, file.path(out_dir, "btru_top_genes.rds"))
+saveRDS(picked_power, file.path(out_dir, "btru_soft_power.rds"))
 saveRDS(list(cor = cor_mat, pval = pval_mat),
         file.path(out_dir, "btru_module_trait_cor.rds"))

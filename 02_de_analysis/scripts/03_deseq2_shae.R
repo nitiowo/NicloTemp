@@ -27,8 +27,12 @@ meta_inf <- meta[meta$infection == "infected", ]
 shae_inf <- shae_counts[, meta_inf$sample]
 
 # ---- Pre-filter Low-Count Genes ----
+# Keep genes with >= 15 counts in >= 3 samples within at least one temperature group
 
-keep <- rowSums(shae_inf >= 5) >= 3
+temp_groups <- meta_inf$temp_C
+keep <- apply(shae_inf, 1, function(x) {
+  any(tapply(x, temp_groups, function(g) sum(g >= 15) >= 3))
+})
 shae_filt <- shae_inf[keep, ]
 
 # ---- Create DESeqDataSet ----
