@@ -15,42 +15,39 @@ dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 for (species in c("btru", "shae")) {
   
-  res_24 <- read_tsv(file.path(de_dir, species,
-                                paste0(species, "_res_temp24v16.tsv")),
+  res_16 <- read_tsv(file.path(de_dir, species,
+                                paste0(species, "_res_temp16v24.tsv")),
                      show_col_types = FALSE) %>%
     filter(!is.na(padj)) %>%
-    select(gene_id, lfc_24 = log2FoldChange, padj_24 = padj)
+    select(gene_id, lfc_16 = log2FoldChange, padj_16 = padj)
   
   res_32 <- read_tsv(file.path(de_dir, species,
-                                paste0(species, "_res_temp32v16.tsv")),
+                                paste0(species, "_res_temp32v24.tsv")),
                      show_col_types = FALSE) %>%
     filter(!is.na(padj)) %>%
     select(gene_id, lfc_32 = log2FoldChange, padj_32 = padj)
   
-  combined <- inner_join(res_24, res_32, by = "gene_id") %>%
-    filter(padj_24 < 0.05 | padj_32 < 0.05)
+  combined <- inner_join(res_16, res_32, by = "gene_id") %>%
+    filter(padj_16 < 0.05 | padj_32 < 0.05)
   
   
   # Classify response patterns
   combined <- combined %>%
     mutate(
       pattern = case_when(
-        lfc_24 > 0 & lfc_32 > 0 & lfc_32 > lfc_24 ~ "linear_up",
-        lfc_24 < 0 & lfc_32 < 0 & lfc_32 < lfc_24 ~ "linear_down",
-        lfc_24 > 0 & lfc_32 < 0 ~ "peak_24",
-        lfc_24 < 0 & lfc_32 > 0 ~ "trough_24",
-        lfc_24 > 0 & lfc_32 > 0 & lfc_32 <= lfc_24 ~ "plateau_up",
-        lfc_24 < 0 & lfc_32 < 0 & lfc_32 >= lfc_24 ~ "plateau_down",
-        abs(lfc_24) < 0.5 & abs(lfc_32) > 1 ~ "late_response",
-        abs(lfc_32) < 0.5 & abs(lfc_24) > 1 ~ "early_response",
+        lfc_16 < 0 & lfc_32 > 0 & lfc_32 > -lfc_16 ~ "linear_up",
+        lfc_16 > 0 & lfc_32 < 0 & lfc_32 < -lfc_16 ~ "linear_down",
+        lfc_16 < 0 & lfc_32 < 0 ~ "peak_24",
+        lfc_16 > 0 & lfc_32 > 0 ~ "trough_24",
+        lfc_16 < 0 & lfc_32 > 0 & lfc_32 <= -lfc_16 ~ "plateau_up",
+        lfc_16 > 0 & lfc_32 < 0 & lfc_32 >= -lfc_16 ~ "plateau_down",
+        abs(lfc_16) < 0.5 & abs(lfc_32) > 1 ~ "late_response",
+        abs(lfc_32) < 0.5 & abs(lfc_16) > 1 ~ "early_response",
         TRUE ~ "other"
       )
     )
   
   pattern_counts <- combined %>% dplyr::count(pattern) %>% arrange(desc(n))
-  for (i in seq_len(nrow(pattern_counts))) {
-                pattern_counts$n[i]))
-  }
   
   write_tsv(combined, file.path(out_dir, paste0(species, "_temp_patterns.tsv")))
   write_tsv(pattern_counts, file.path(out_dir, paste0(species, "_pattern_counts.tsv")))
@@ -58,11 +55,13 @@ for (species in c("btru", "shae")) {
   # ---- K-Means Clustering on LFC Profiles ----
   
   lfc_mat <- combined %>%
-    select(gene_id, lfc_24, lfc_32) %>%
+    select(gene_id, lfc_16, lfc_32) %>%
     column_to_rownames("gene_id") %>%
     as.matrix()
   
-  lfc_mat_full <- cbind(lfc_16 = 0, lfc_mat)
+  lfc_mat_full <- cbind(lfc_mat[, "lfc_16", drop = FALSE],
+                        lfc_24 = 0,
+                        lfc_mat[, "lfc_32", drop = FALSE])
   
   lfc_scaled <- t(scale(t(lfc_mat_full)))
   lfc_scaled[is.nan(lfc_scaled)] <- 0
@@ -74,8 +73,8 @@ for (species in c("btru", "shae")) {
   combined$cluster <- km$cluster
     
   plot_data <- combined %>%
-    select(gene_id, lfc_24, lfc_32, cluster) %>%
-    mutate(lfc_16 = 0) %>%
+    select(gene_id, lfc_16, lfc_32, cluster) %>%
+    mutate(lfc_24 = 0) %>%
     pivot_longer(cols = starts_with("lfc_"),
                  names_to = "temp", values_to = "lfc") %>%
     mutate(temp_C = as.numeric(gsub("lfc_", "", temp)),
@@ -100,7 +99,7 @@ for (species in c("btru", "shae")) {
                color = "red", size = 2, inherit.aes = FALSE) +
     facet_wrap(~ cluster, scales = "free_y") +
     labs(title = paste(toupper(species), "- Temperature Response Clusters"),
-         x = "Temperature (C)", y = "log2 Fold Change vs 16C") +
+         x = "Temperature (C)", y = "log2 Fold Change vs 24C") +
     scale_x_continuous(breaks = c(16, 24, 32)) +
     theme_bw(base_size = 11)
   
@@ -148,7 +147,7 @@ for (species in c("btru", "shae")) {
     write_tsv(all_enrich, file.path(out_dir, paste0(species, "_cluster_go.tsv")))
   }
   
-  write_tsv(combined %>% select(gene_id, lfc_24, lfc_32, pattern, cluster),
+  write_tsv(combined %>% select(gene_id, lfc_16, lfc_32, pattern, cluster),
             file.path(out_dir, paste0(species, "_temp_clusters_full.tsv")))
 }
 
