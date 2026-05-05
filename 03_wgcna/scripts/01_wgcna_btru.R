@@ -119,6 +119,18 @@ traits <- data.frame(
 )
 traits <- traits[rownames(expr_filt), ]
 
+# Pairwise interaction columns
+traits$tempXinf_16   <- traits$temp_16 * traits$infected
+traits$tempXinf_32   <- traits$temp_32 * traits$infected
+traits$tempXniclo_16 <- traits$temp_16 * traits$niclo_treated
+traits$tempXniclo_32 <- traits$temp_32 * traits$niclo_treated
+traits$infXniclo     <- traits$infected * traits$niclo_treated
+
+# Display order
+trait_order <- c("temp_16", "temp_24", "temp_32", "infected", "niclo_treated",
+                 "tempXinf_16", "tempXinf_32", "tempXniclo_16", "tempXniclo_32", "infXniclo")
+traits <- traits[, trait_order]
+
 n_samples <- nrow(expr_filt)
 cor_mat <- cor(MEs, traits, use = "p")
 pval_mat <- corPvalueStudent(cor_mat, n_samples)

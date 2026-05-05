@@ -1,6 +1,7 @@
 # ---- 02_deseq2_btru.R ----
 # DESeq2 differential expression for Btru
-# Uses all 36 samples. Three-factor design: temperature, infection, niclosamide
+# Uses all 36 samples. Two-way interaction design (no 3-way term): including the
+# 3-way interaction is super weird - investigate separately. Use 2-ways for manuscript.
 
 # Input: btru_counts.rds, metadata.rds from 01_qc_and_species_split.R
 # Output: DESeq2 results, normalized counts, PCA, volcanos
@@ -67,12 +68,12 @@ cntr_niclo <- colMeans(mm[dds$niclo_ppm == "0.05", ]) -
               colMeans(mm[dds$niclo_ppm == "0", ])
 res_niclo <- results(dds, contrast = cntr_niclo)
 
-# ---- LFC Shrinkage (apeglm) ----
+# ---- LFC Shrinkage (ashr) ----
 
-res_infection_shr <- lfcShrink(dds, coef = "infection_infected_vs_uninfected", type = "apeglm")
-res_temp_16v24_shr <- lfcShrink(dds, coef = "temp_C_16_vs_24", type = "apeglm")
-res_temp_32v24_shr <- lfcShrink(dds, coef = "temp_C_32_vs_24", type = "apeglm")
-res_niclo_shr <- lfcShrink(dds, coef = "niclo_ppm_0.05_vs_0", type = "apeglm")
+res_infection_shr <- lfcShrink(dds, contrast = cntr_infection, res = res_infection, type = "ashr")
+res_temp_16v24_shr <- lfcShrink(dds, contrast = cntr_16v24, res = res_temp_16v24, type = "ashr")
+res_temp_32v24_shr <- lfcShrink(dds, contrast = cntr_32v24, res = res_temp_32v24, type = "ashr")
+res_niclo_shr <- lfcShrink(dds, contrast = cntr_niclo, res = res_niclo, type = "ashr")
 
 # ---- Normalized Counts ----
 

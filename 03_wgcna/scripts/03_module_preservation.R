@@ -56,12 +56,35 @@ contrasts <- list(
     test_label = "0.05ppm",
     ref_idx = which(meta$niclo_ppm == "0"),
     test_idx = which(meta$niclo_ppm == "0.05")
+  ),
+  inf_at_32C = list(
+    ref_label = "uninf_32C",
+    test_label = "inf_32C",
+    ref_idx = which(meta$infection == "uninfected" & meta$temp_C == "32"),
+    test_idx = which(meta$infection == "infected" & meta$temp_C == "32")
+  ),
+  inf_at_16C = list(
+    ref_label = "uninf_16C",
+    test_label = "inf_16C",
+    ref_idx = which(meta$infection == "uninfected" & meta$temp_C == "16"),
+    test_idx = which(meta$infection == "infected" & meta$temp_C == "16")
+  ),
+  niclo_infected = list(
+    ref_label = "inf_0ppm",
+    test_label = "inf_0.05ppm",
+    ref_idx = which(meta$infection == "infected" & meta$niclo_ppm == "0"),
+    test_idx = which(meta$infection == "infected" & meta$niclo_ppm == "0.05")
   )
 )
 
 # ----Run Module Preservation ----
 # Check Neil's vignette for comments
 all_results <- list()
+
+# Get the column if available, otherwise return NA
+pick_col <- function(mat, col_name) {
+  if (col_name %in% colnames(mat)) mat[, col_name] else rep(NA_real_, nrow(mat))
+}
 
 for (cname in names(contrasts)) {
   ct <- contrasts[[cname]]
@@ -105,12 +128,16 @@ for (cname in names(contrasts)) {
   z_df <- data.frame(
     contrast = cname,
     module = rownames(ref_stat),
-    size = ref_stat[, "moduleSize"],
-    z_summary = ref_stat[, "Zsummary.pres"],
-    z_density = ref_stat[, "Zdensity.pres"],
-    z_connectivity = ref_stat[, "Zconnectivity.pres"],
-    preserved = ifelse(ref_stat[, "Zsummary.pres"] > 10, "strongly",
-                       ifelse(ref_stat[, "Zsummary.pres"] > 2, "moderately",
+    size = pick_col(ref_stat, "moduleSize"),
+    z_summary = pick_col(ref_stat, "Zsummary.pres"),
+    z_density = pick_col(ref_stat, "Zdensity.pres"),
+    z_connectivity = pick_col(ref_stat, "Zconnectivity.pres"),
+    median_rank = pick_col(obs_stat, "medianRank.pres"),
+    obs_cor_kme = pick_col(obs_stat, "cor.kME.pres"),
+    obs_cor_mm = pick_col(obs_stat, "cor.kIM.pres"),
+    obs_cor_dat = pick_col(obs_stat, "cor.cor"),
+    preserved = ifelse(pick_col(ref_stat, "Zsummary.pres") > 10, "strongly",
+                       ifelse(pick_col(ref_stat, "Zsummary.pres") > 2, "moderately",
                               "not preserved"))
   )
 
