@@ -41,8 +41,8 @@ summarize_res(btru_tempXniclo_16, "Temp(16):Niclosamide")
 summarize_res(btru_tempXniclo_32, "Temp(32):Niclosamide")
 summarize_res(btru_infXniclo, "Infection:Niclosamide")
 
-btru_temp_32v16 <- results(btru_dds, contrast = c("temp_C", "32", "16"), alpha = 0.05)
-summarize_res(btru_temp_32v16, "Temperature (32C vs 16C)")
+btru_temp_32v24 <- results(btru_dds, contrast = c("temp_C", "32", "24"), alpha = 0.05)
+summarize_res(btru_temp_32v24, "Temperature (32C vs 24C)")
 
 # ---- Shae Interaction Contrasts ----
 
@@ -55,8 +55,8 @@ shae_tempXniclo_32_shr <- lfcShrink(shae_dds, coef = "temp_C32.niclo_ppm0.05", t
 summarize_res(shae_tempXniclo_16, "Temp(16):Niclosamide")
 summarize_res(shae_tempXniclo_32, "Temp(32):Niclosamide")
 
-shae_temp_32v16 <- results(shae_dds, contrast = c("temp_C", "32", "16"), alpha = 0.05)
-summarize_res(shae_temp_32v16, "Temperature (32C vs 16C)")
+shae_temp_32v24 <- results(shae_dds, contrast = c("temp_C", "32", "24"), alpha = 0.05)
+summarize_res(shae_temp_32v24, "Temperature (32C vs 24C)")
 
 # ---- Save Results ----
 
@@ -65,7 +65,7 @@ write_results(btru_tempXinf_32, file.path(interact_dir, "btru_tempXinf_32.tsv"))
 write_results(btru_tempXniclo_16, file.path(interact_dir, "btru_tempXniclo_16.tsv"))
 write_results(btru_tempXniclo_32, file.path(interact_dir, "btru_tempXniclo_32.tsv"))
 write_results(btru_infXniclo, file.path(interact_dir, "btru_infXniclo.tsv"))
-write_results(btru_temp_32v16, file.path(interact_dir, "btru_temp32v16.tsv"))
+write_results(btru_temp_32v24, file.path(interact_dir, "btru_temp32v24.tsv"))
 
 write_results(btru_tempXinf_16_shr, file.path(interact_dir, "btru_tempXinf_16_shrunk.tsv"))
 write_results(btru_tempXinf_32_shr, file.path(interact_dir, "btru_tempXinf_32_shrunk.tsv"))
@@ -75,7 +75,7 @@ write_results(btru_infXniclo_shr, file.path(interact_dir, "btru_infXniclo_shrunk
 
 write_results(shae_tempXniclo_16, file.path(interact_dir, "shae_tempXniclo_16.tsv"))
 write_results(shae_tempXniclo_32, file.path(interact_dir, "shae_tempXniclo_32.tsv"))
-write_results(shae_temp_32v16, file.path(interact_dir, "shae_temp32v16.tsv"))
+write_results(shae_temp_32v24, file.path(interact_dir, "shae_temp32v24.tsv"))
 
 write_results(shae_tempXniclo_16_shr, file.path(interact_dir, "shae_tempXniclo_16_shrunk.tsv"))
 write_results(shae_tempXniclo_32_shr, file.path(interact_dir, "shae_tempXniclo_32_shrunk.tsv"))
