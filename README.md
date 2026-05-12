@@ -17,7 +17,7 @@ Dual-species RNAseq analysis of *Schistosoma haematobium* and *Bulinus truncatus
 
 ## Workflow
 
-- **Genome:** Concatenated *B. trunculus* (GCA_021962125.1) + *S. haematobium* (GCF_000699445.3), species-prefixed (`Btru_` / `Shae_`)
+- **Genome:** Concatenated *B. truncatus* (GCA_021962125.1) + *S. haematobium* (GCF_000699445.3), species-prefixed (`Btru_` / `Shae_`)
 - **Aligner:** STAR-Salmon via nf-core/rnaseq v3.21.0
 - **DE analysis:** DESeq2 with temperature × niclosamide × infection interaction models
 - **Co-expression:** WGCNA consensus networks per species, alongside per-contrast networks for module preservation analysis
